@@ -1,0 +1,8 @@
+[user]
+	name = ChessBlox Team
+	email = team@chessblox.invalid
+	useConfigOnly = true
+[commit]
+	gpgsign = false
+[tag]
+	gpgsign = false

@@ -1,0 +1,8 @@
+[build]
+builder = "RAILPACK"
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "npm run wager:robinhood:settlement-worker"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10

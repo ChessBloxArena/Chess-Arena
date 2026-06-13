@@ -1,0 +1,11 @@
+title = "ChessBlox secret scanning"
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Exact public token contract addresses, not authentication credentials"
+regexTarget = "secret"
+regexes = [
+  '^Dp4pqN6R2WprUakMDdqjEdebFbNrdWRPJAeexpvYpump$',
+  '(?i)^0xF0C4BF4C582cb3836e98394b1d4e7B7281101bE8$',
+]
