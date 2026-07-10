@@ -1,0 +1,347 @@
+/* Sky Islands: a shared, tactile design language for the menu and every match surface. */
+:root, :root[data-arena-theme] {
+  --background: 214 51% 78%; --foreground: 217 34% 24%;
+  --card: 43 75% 97%; --card-foreground: 217 34% 24%;
+  --popover: 43 75% 97%; --popover-foreground: 217 34% 24%;
+  --primary: 167 47% 32%; --primary-foreground: 0 0% 100%;
+  --secondary: 214 29% 90%; --secondary-foreground: 217 34% 24%;
+  --muted: 214 24% 89%; --muted-foreground: 217 20% 43%;
+  --accent: 42 96% 66%; --accent-foreground: 217 34% 24%;
+  --border: 215 22% 73%; --input: 213 22% 88%; --ring: 167 47% 32%;
+  --retro-gold: 38 77% 39%; --retro-glow: 167 47% 40%;
+  --arena-panel-top: 43 75% 97%; --arena-panel-bottom: 43 75% 97%;
+  --arena-field: 213 34% 94%; --arena-hud-top: 43 75% 97%; --arena-hud-bottom: 43 75% 97%;
+  --arena-shadow: 217 35% 25%; --radius: .8rem;
+  font-synthesis: none;
+}
+body, button, input, select, textarea, .font-retro { font-family: 'Nunito', sans-serif; }
+body { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: 0; color: #293b53; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid #1c8679; outline-offset: 5px; }
+button { touch-action: manipulation; }
+[class*="text-[6px]"], [class*="text-[7px]"] { font-size: 11px; }
+[class*="text-[8px]"], [class*="text-[9px]"] { font-size: 12px; }
+[class*="text-[10px]"] { font-size: 14px; }
+.retro-panel { color: #293b53; background: #fffbf1; border: 2px solid #fffdf8; border-radius: 14px; box-shadow: 0 5px 0 #8093aa, 0 10px 25px #33445d1a; }
+.retro-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 11px 18px; background: #edf1f5; color: #33465d; border: 2px solid #d0dae3; border-radius: 9px; box-shadow: 0 4px 0 #a1b2c2; font-family: 'Nunito',sans-serif; font-size: 13px; font-weight: 1000; line-height: 1.3; letter-spacing: .025em; text-shadow: none; transition: transform .16s, background .16s, box-shadow .16s; }
+.retro-btn:hover { color: #243a4f; border-color: #adc9c3; background: #e1eee9; transform: translateY(-2px); box-shadow: 0 6px 0 #a1b2c2; }
+.retro-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #a1b2c2; }
+.retro-btn:disabled { opacity: .48; transform: none; cursor: not-allowed; }
+.retro-btn-small { min-height: 39px; padding: 8px 12px; font-size: 12px; }
+.retro-btn-gold { color: #36434d; background: #ffce66; border-color: #ffe49b; box-shadow: 0 5px 0 #bd893c; font-size: 16px; }
+.retro-btn-gold:hover { background: #ffdc89; border-color: #fff0b8; box-shadow: 0 7px 0 #bd893c; }
+.retro-selected, .retro-selected:hover { color: #fffdf4; background: #438c7a; border-color: #75b7a4; box-shadow: 0 4px 0 #2a625d; }
+.retro-input { min-height: 44px; padding: 10px 12px; font: 800 13px 'Nunito',sans-serif; color: #304257; background: #edf2f5; border: 2px solid #c7d5df; border-radius: 8px; box-shadow: inset 0 2px 0 #d9e2e8; }
+.retro-glow, .retro-glow-gold, .stone-label { text-shadow: none; }
+.retro-blink { animation: none; }
+.chess-canvas-container { background: #b8d1f5 url('/textures/emerald-sky.png') center / cover no-repeat; }
+.chess-scene-atmosphere, .chess-scene-vignette, .chess-scene-scanlines { display: none; }
+.blox-home { position: relative; min-height: 100svh; height: 100svh; min-height: 720px; overflow: hidden; background: #a9c4e5; }
+.blox-header { position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 30px 4.5%; }
+.blox-brand { display: inline-flex; align-items: center; gap: 11px; color: #314458; text-decoration: none; font-family: 'Lilita One',sans-serif; font-size: 20px; line-height: .95; letter-spacing: .03em; }
+.blox-brand > span:last-child > span { display: block; letter-spacing: .09em; font-size: 17px; margin-top: 3px; }
+.blox-brand-icon { width: 47px; height: 49px; display: grid; place-items: center; border-radius: 12px; background: #ffdc85; border: 2px solid #ffeab4; box-shadow: 0 4px 0 #af8b53; transform: rotate(-6deg); }
+.blox-header-right { display: flex; align-items: center; gap: 12px; }
+.blox-edition { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid #ecf5ff70; border-radius: 7px; font-size: 10px; letter-spacing: .12em; margin-right: 8px; }
+.blox-icon-button { width: 41px; height: 41px; display: grid; place-items: center; color: #344b61; background: #e7f0fa; border: 2px solid #f0f6ff; border-radius: 10px; box-shadow: 0 3px 0 #839cb9; transition: transform .2s; }
+.blox-icon-button:hover { transform: translateY(-3px); }
+.blox-home-world { position: absolute; top: 0; right: -8%; width: 79%; height: 100%; }
+.blox-home-copy { position: relative; z-index: 3; width: 455px; margin-left: 7%; padding-top: clamp(28px,8vh,100px); pointer-events: none; }
+.blox-home-copy button { pointer-events: auto; }
+.blox-eyebrow { display: flex; align-items: center; gap: 9px; color: #37506d; font-size: 10px; letter-spacing: .19em; font-weight: 1000; }
+.blox-eyebrow > span { width: 7px; height: 7px; border-radius: 50%; background: #3b8d77; box-shadow: 0 0 0 4px #e0f0d94d; }
+.blox-title { margin: 22px 0 27px -5px; font-family: 'Lilita One',sans-serif; font-weight: 400; font-size: clamp(88px,8.5vw,133px); line-height: .86; letter-spacing: -.025em; color: #fff9e9; -webkit-text-stroke: 2px #394e69; paint-order: stroke fill; text-shadow: 0 5px 0 #677d99, 0 9px 0 #394e69, 0 17px 18px #2a446a24; transform: rotate(-3deg); transform-origin: left center; }
+.blox-title > span { display: block; color: #ffda7e; }
+.blox-title-period { color: #fcf6e9; }
+.blox-tagline { max-width: 315px; margin-bottom: 27px; font-size: 17px; line-height: 1.55; color: #3f5875; font-weight: 800; }
+.blox-home-actions { width: 365px; }
+.blox-play { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 80px; padding: 14px 22px; border: 3px solid #fff0b9; border-radius: 13px; background: #ffd36e; box-shadow: 0 7px 0 #b88840, 0 12px 22px #3d577721; color: #374756; transition: transform .18s, box-shadow .18s; }
+.blox-play > span { flex: 1; text-align: left; font-family: 'Lilita One',sans-serif; font-size: 27px; letter-spacing: .025em; line-height: 1; }
+.blox-play small { display: block; margin-top: 7px; font-family: 'Nunito',sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0; color: #735e3d; }
+.blox-play:hover { transform: translateY(-3px); box-shadow: 0 10px 0 #b88840, 0 16px 22px #3d577721; }
+.blox-play:active { transform: translateY(5px); box-shadow: 0 2px 0 #b88840; }
+.blox-secondary-actions { display: flex; gap: 10px; margin-top: 21px; }
+.blox-secondary-actions button { display: flex; align-items: center; justify-content: center; gap: 7px; flex: 1; padding: 13px 7px; min-height: 48px; border: 2px solid #eef5ff; border-radius: 9px; background: #e2ecf7; box-shadow: 0 4px 0 #8ca1b8; color: #415774; font-size: 10px; font-weight: 1000; transition: background .16s, transform .16s; }
+.blox-secondary-actions button:hover { transform: translateY(-2px); background: #fffaf0; }
+.blox-home-note { display: flex; align-items: center; gap: 8px; margin-top: 23px; font-size: 11px; color: #4e6989; }
+.blox-world-caption { position: absolute; z-index: 3; left: 65%; bottom: 13%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.blox-world-number { display: grid; place-items: center; width: 38px; height: 40px; border: 1px solid #e9f3ffb3; border-radius: 8px; color: #4a6586; font-size: 12px; }
+.blox-world-caption small { display: block; color: #4e6889; font-size: 8px; letter-spacing: .15em; margin-bottom: 3px; }
+.blox-world-caption strong { display: block; color: #3c5371; font-size: 15px; font-weight: 900; }
+.blox-world-tag { border-left: 1px solid #7a98ba; margin-left: 8px; padding-left: 16px; font-size: 8px; color: #50698a; letter-spacing: .1em; }
+.blox-home-footer { position: absolute; bottom: 0; left: 4.5%; right: 4.5%; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #edf4ff55; padding: 23px 0; font-size: 8px; letter-spacing: .12em; color: #4e6889; }
+.blox-home-footer span:nth-child(2) { display: flex; align-items: center; gap: 7px; }
+.blox-world-loading { height: 100%; display: grid; place-items: center; color: #4e6889; }
+/* Setup is a game menu beside the live island. */
+.blox-menu { background: #a9c4e5; }
+.blox-menu-world { position: fixed; inset: 0 -22% 0 25%; }
+.blox-menu-top { position: absolute; z-index: 25; top: 22px; left: 4%; right: 4%; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 1000; letter-spacing: .05em; background: #a9c4e5; box-shadow: 0 0 0 14px #a9c4e5; }
+.blox-menu-top > span { display: flex; align-items: center; gap: 8px; }
+.blox-back { display: inline-flex; align-items: center; gap: 8px; padding: 9px 0; font-size: 11px; font-weight: 1000; }
+.menu-screen-scroll { padding: 93px 4% 35px; align-items: flex-start; justify-content: flex-start; min-height: 100svh; height: 100svh; }
+.main-menu-stack, .main-menu-stack.is-pvp-wide { width: min(100%,470px); max-width: 470px; margin: 0; }
+.blox-menu-online .main-menu-stack { width: min(100%,870px); max-width: 870px; }
+.main-menu-stack::before { display: none; }
+.main-menu-stack .retro-panel { border-color: #fffdf8; box-shadow: 0 5px 0 #8a9cb2, 0 10px 20px #33445d12; }
+.blox-menu-heading { margin-bottom: 23px; }
+.blox-menu-heading h1 { margin: 10px 0 7px; font-family: 'Lilita One',sans-serif; font-size: 36px; font-weight: 400; color: #fffbee; text-shadow: 0 3px 0 #536d8e; }
+.blox-menu-heading > p:last-child { color: #4d6581; font-size: 12px; }
+.main-menu-tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+.main-menu-tabs .retro-btn { flex: 1; }
+.menu-main-content, .menu-main-content.is-pvp-dashboard { display: grid; gap: 20px; }
+.menu-main-content.is-pvp-dashboard { grid-template-columns: 230px minmax(0,1fr); }
+.menu-side-column, .menu-primary-column { display: flex; flex-direction: column; gap: 17px; min-width: 0; }
+.menu-side-column > .launch-ca-panel { order: 10; }
+.menu-side-column > .blox-rewards { order: 9; }
+.launch-ca-panel summary, .blox-rewards summary { cursor: pointer; font-weight: 900; font-size: 11px; }
+.launch-ca-panel[open] summary, .blox-rewards[open] summary { margin-bottom: 13px; }
+.launch-ca-header, .launch-ca-status, .launch-ca-value { font-family: 'Nunito',sans-serif; font-size: 10px; }
+.menu-primary-column > .text-center .retro-btn-gold { width: 100%; min-height: 54px; }
+.lobby-panel-heading, .lobby-subhead, .lobby-control-group > span, .player-tag-field > span, .lobby-form-field > span { font-family: 'Nunito',sans-serif; font-size: 11px; letter-spacing: .03em; }
+.lobby-panel-heading { font-size: 16px; }
+.lobby-browse-layout { display: flex; flex-direction: column; gap: 20px; }
+.lobby-match-setup, .lobby-directory-column, .lobby-format-family { background: #edf2f3; border-color: #d8e2e8; border-radius: 8px; }
+.lobby-format-family-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.lobby-format-family > span, .lobby-queue-count, .lobby-badge, .lobby-card-meta, .lobby-empty-state, .lobby-format-queue { font-family: 'Nunito',sans-serif; font-size: 10px; }
+.lobby-empty-state { background: #eaf0f5; color: #62768d; min-height: 65px; border-radius: 9px; }
+.lobby-card { border-radius: 9px; background: #fffaf0; border-color: #d0dbe3; }
+.lobby-card-title-row strong { font-family: 'Nunito',sans-serif; font-size: 12px; }
+.lobby-panel-tabs .retro-btn, .lobby-choice-row .retro-btn, .lobby-filter-row .retro-btn { font-size: 11px; }
+.theme-choice { background: #eaf0f4; border: 2px solid #cad8e2; border-radius: 9px; color: #41566a; box-shadow: 0 3px 0 #a9bac8; }
+.theme-choice.is-active { border-color: #72a28e; background: #d9ece2; color: #2a6451; }
+.theme-choice-label { font-family: 'Nunito',sans-serif; font-size: 10px; }
+/* All match surfaces use the same cream, slate and honey components. */
+.game-topbar { min-height: 73px; padding: 13px 22px; background: #f7f7f0; border-radius: 0; box-shadow: 0 3px 0 #8297af; gap: 15px; }
+.game-title-block .stone-label { font-family: 'Lilita One',sans-serif; font-size: 22px; color: #3d5471; }
+.game-title-block > p:last-child { font-size: 10px; letter-spacing: .08em; }
+.game-topbar-actions .retro-btn-small { font-size: 10px; min-height: 36px; padding: 7px 10px; }
+.game-statusbar { min-height: 64px; background: #f9f7ed; border-radius: 0; padding: 12px 23px; box-shadow: 0 -3px 0 #8ba0b7; }
+.game-status-title { font-family: 'Nunito',sans-serif; font-size: 14px; font-weight: 1000; }
+.game-status-flavor, .game-status-count, .game-status-subtitle { font-family: 'Nunito',sans-serif; font-size: 11px; line-height: 1.4; }
+.player-turn-panel { top: 18px; left: 18px; width: 240px; transform: none; padding: 12px; }
+.player-turn-header, .player-turn-copy, .player-turn-active, .player-turn-header strong, .player-turn-copy strong { font-family: 'Nunito',sans-serif; font-size: 11px; text-shadow: none; }
+.player-turn-seats { display: flex; flex-direction: column; gap: 7px; }
+.player-turn-seat { min-height: 44px; border: 1px solid #d2dfe3; border-radius: 7px; padding: 8px; background: #e9eff2; }
+.player-turn-seat.is-active { background: #ddeee2; border-color: #82b59a; box-shadow: none; }
+.player-turn-copy small { font: 800 9px 'Nunito',sans-serif; }
+.player-turn-color { width: 20px; height: 24px; border-radius: 4px; border: 2px solid #8093a4; box-shadow: 0 3px 0 #a1b0bc; }
+.player-turn-seat-w .player-turn-color { background: #fffaf0; }
+.player-turn-seat-b .player-turn-color { background: #33465b; }
+.player-turn-active { margin-top: 10px; font-size: 10px; }
+.move-history-panel { top: 70px; right: 18px; width: 210px; max-height: 260px; background: #fffbf1; padding: 12px; }
+.move-history-header, .move-history-header strong, .move-history-count, .move-history-empty, .move-history-row, .move-history-footer { font-family: 'Nunito',sans-serif; font-size: 11px; text-shadow: none; }
+.move-history-row { background: #eef2f4; border-color: #dce4e9; border-radius: 5px; }
+.move-history-row.is-latest { background: #e3ede5; box-shadow: none; }
+.chess-scene-controls { top: 18px; right: 18px; }
+.chess-scene-control { width: 38px; height: 38px; background: #fffaf0; color: #405b74; border: 2px solid #fff; border-radius: 9px; box-shadow: 0 3px 0 #8398b1; }
+.chess-scene-control:hover, .chess-scene-control[aria-pressed='true'] { background: #dfefe3; color: #2b7764; border-color: #a3cfb4; box-shadow: 0 3px 0 #6c9d89; }
+.opponent-panel { left: 18px; bottom: 18px; width: 240px; background: #fffaf0; border: 2px solid #fff; border-radius: 12px; box-shadow: 0 4px 0 #8398b1; }
+.opponent-panel-label, .opponent-panel-name, .opponent-panel-mood { font-family: 'Nunito',sans-serif; font-size: 10px; text-shadow: none; }
+.opponent-panel-name { font-size: 17px; }
+.opponent-panel-badge { background: #ffd879; border: 2px solid #e7b44b; border-radius: 8px; box-shadow: none; }
+.captured-pieces-stack { left: 18px; top: 220px; }
+.cpu-taunt-anchor { top: 18px; max-width: 310px; }
+.cpu-taunt-bubble { background: #fffaf0; border: 2px solid #fff; border-radius: 12px; box-shadow: 0 4px 0 #8398b1; }
+.cpu-taunt-bubble p { font-size: 12px; font-weight: 900; color: #425b78 !important; }
+.action-banner { top: 83px; background: #fff7de; border: 2px solid #ffdfa1; border-radius: 12px; min-height: 70px; box-shadow: 0 5px 0 #be965c; }
+.action-banner-title { font-family: 'Lilita One',sans-serif; font-size: 26px; text-shadow: none; color: #466058; }
+.action-banner-subtitle { font-family: 'Nunito',sans-serif; font-size: 11px; color: #6f795e; }
+.piece-id-badge, .piece-id-name { font-family: 'Nunito',sans-serif; font-weight: 1000; }
+.piece-id-badge { width: 19px; height: 19px; font-size: 10px; box-shadow: 0 2px 0 #21334735; border: 1px solid #7b8da3; }
+.piece-id-badge.is-white { background: #fffbef; color: #364b62; }
+.piece-id-badge.is-black { background: #32465f; color: #fffbef; }
+.pause-overlay, .confirm-overlay, .promotion-overlay, .game-over-overlay { background: #38516e70; backdrop-filter: blur(8px); }
+.pause-panel, .confirm-panel, .promotion-panel, .game-over-panel, .game-loading-panel, .game-error-panel { border-radius: 18px; background: #fffbf1; border: 3px solid #fff; box-shadow: 0 7px 0 #7c90a6, 0 25px 90px #203b5a44; }
+.pause-panel h2, .confirm-panel h2, .promotion-title, .game-loading-title, .game-error-title { font-family: 'Lilita One',sans-serif; font-size: 29px; text-shadow: none; }
+.pause-panel p, .confirm-panel p, .promotion-subtitle, .game-loading-subtitle, .game-error-copy { font-family: 'Nunito',sans-serif; font-size: 13px; }
+.promotion-option { border-radius: 10px; background: #e8eff3; border-color: #c2d2de; }
+.promotion-option-label { font-family: 'Nunito',sans-serif; font-size: 12px; }
+.match-intro-overlay { background: #47678440; }
+.match-intro-card { background: #fffbf1; border: 3px solid #fff; border-radius: 16px; box-shadow: 0 7px 0 #7c90a6; }
+.match-intro-matchup { font-family: 'Lilita One',sans-serif; font-size: 34px; color: #3f5d73; text-shadow: none; }
+.match-intro-label, .match-intro-subtitle { font-family: 'Nunito',sans-serif; font-size: 12px; }
+.match-intro-rays, .endgame-burst { opacity: .1; }
+.quick-chat-panel, .connection-status-panel, .wager-settlement-panel, .wallet-status-panel { font-family: 'Nunito',sans-serif; border-radius: 12px; }
+.quick-chat-panel button, .quick-chat-toast, .connection-status-panel p, .connection-status-panel strong { font-family: 'Nunito',sans-serif; font-size: 11px; }
+.cpu-leaderboard-panel, .cpu-leaderboard-row { font-family: 'Nunito',sans-serif; }
+@media (min-width:1600px) { .blox-home-copy { margin-left: 10%; } .blox-home-world { right: -2%; width: 73%; } }
+@media (max-width:1100px) {
+  .blox-home-copy { margin-left: 5%; width: 380px; padding-top: 70px; }
+  .blox-title { font-size: 100px; }
+  .blox-home-world { right: -19%; width: 92%; }
+  .blox-world-caption { left: 72%; }
+  .blox-world-tag { display: none; }
+  .game-topbar { padding: 10px 14px; }
+  .game-title-block .stone-label { font-size: 18px; }
+  .game-topbar-actions { gap: 6px; }
+  .game-topbar-actions .retro-btn-small { font-size: 9px; padding: 6px 7px; }
+  .move-history-panel { width: 175px; }
+}
+@media (max-width:760px) {
+  .blox-home { min-height: 830px; height: 100svh; }
+  .blox-header { padding: 20px 22px; }
+  .blox-edition { display: none; }
+  .blox-brand { font-size: 17px; }
+  .blox-brand > span:last-child > span { font-size: 14px; }
+  .blox-brand-icon { width: 39px; height: 41px; }
+  .blox-home-world { width: 115%; right: -7.5%; top: 140px; height: 470px; }
+  .blox-home-copy { position: absolute; margin: 0; inset: 102px 0 auto; padding: 0; width: 100%; text-align: center; }
+  .blox-eyebrow { justify-content: center; font-size: 8px; }
+  .blox-title { margin: 17px auto 0; font-size: 72px; line-height: .9; transform: rotate(-3deg); transform-origin: center; }
+  .blox-title > span { display: inline; margin-left: 12px; }
+  .blox-title-period { display: none; }
+  .blox-tagline { max-width: none; font-size: 12px; margin: 15px 16px 0; }
+  .blox-home-actions { position: absolute; top: 485px; left: 50%; transform: translateX(-50%); width: min(365px,calc(100vw - 44px)); }
+  .blox-play { min-height: 68px; padding: 11px 20px; }
+  .blox-play > span { font-size: 25px; }
+  .blox-secondary-actions { margin-top: 17px; }
+  .blox-home-note { display: none; }
+  .blox-world-caption { left: 50%; bottom: auto; top: 539px; gap: 9px; }
+  .blox-world-number { width: 28px; height: 30px; font-size: 10px; }
+  .blox-world-caption strong { font-size: 12px; }
+  .blox-world-caption small { font-size: 7px; }
+  .blox-home-footer { bottom: 7px; left: 22px; right: 22px; padding: 16px 0; font-size: 7px; }
+  .blox-home-footer span:nth-child(2) { display: none; }
+  .blox-menu-top { top: 17px; left: 20px; right: 20px; }
+  .blox-menu-top > span { font-size: 10px; }
+  .blox-menu-world { inset: 0 -30% 0 0; opacity: .5; }
+  .menu-screen-scroll { padding: 82px 20px 30px; }
+  .main-menu-stack, .main-menu-stack.is-pvp-wide, .blox-menu-online .main-menu-stack { max-width: 500px; width: 100%; margin: 0 auto; }
+  .blox-menu-heading { text-align: center; }
+  .blox-menu-heading h1 { font-size: 32px; }
+  .menu-main-content.is-pvp-dashboard { grid-template-columns: 1fr; }
+  .menu-side-column { gap: 16px; }
+  .launch-ca-panel { order: 10; }
+  .game-topbar { display: grid; grid-template-columns: auto 1fr; gap: 6px; padding: 8px 12px; min-height: 98px; }
+  .game-topbar-actions { grid-column: 1/-1; flex-wrap: wrap; justify-content: center; gap: 5px; }
+  .game-topbar-actions .retro-btn-small { min-height: 30px; padding: 5px 7px; font-size: 8px; }
+  .game-title-block { text-align: right; }
+  .game-title-block .stone-label { font-size: 19px; }
+  .game-title-block > p:last-child { font-size: 9px; }
+  .player-turn-panel { top: 12px; left: 12px; width: 182px; padding: 8px; }
+  .player-turn-seats { flex-direction: row; gap: 5px; }
+  .player-turn-seat { flex: 1; padding: 5px; gap: 5px; min-width: 0; }
+  .player-turn-color { width: 12px; height: 18px; flex-shrink: 0; }
+  .player-turn-copy strong { font-size: 8px; overflow-wrap: anywhere; }
+  .player-turn-copy small { font-size: 7px; }
+  .player-turn-header, .player-turn-header strong, .player-turn-active { font-size: 8px; }
+  .player-turn-active { margin-top: 5px; }
+  .move-history-panel { top: auto; bottom: 12px; right: 12px; left: auto; width: 190px; max-height: 114px; padding: 8px; }
+  .move-history-list { max-height: 65px; }
+  .move-history-header, .move-history-empty, .move-history-row, .move-history-footer { font-size: 9px; }
+  .move-history-row { min-height: 27px; }
+  .chess-scene-controls { top: 12px; right: 12px; gap: 5px; }
+  .chess-scene-control { width: 31px; height: 31px; }
+  .cpu-taunt-anchor { top: auto; bottom: 141px; max-width: 250px; }
+  .cpu-taunt-bubble p { font-size: 10px; }
+  .captured-pieces-stack { top: auto; bottom: 14px; left: 12px; max-width: 135px; }
+  .action-banner { top: 115px; min-height: 56px; }
+  .game-statusbar { min-height: 61px; padding: 8px 14px; gap: 3px; }
+  .game-status-title { font-size: 12px; }
+  .game-status-flavor { display: none; }
+  .game-status-meta { padding-left: 24px; }
+  .game-status-count { font-size: 9px; }
+  .match-intro-matchup { font-size: 24px; }
+  .theme-selector { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:420px) {
+  .blox-title { font-size: 61px; }
+  .blox-header-right { gap: 7px; }
+  .blox-icon-button { width: 35px; height: 35px; }
+  .blox-secondary-actions button { font-size: 9px; }
+  .blox-menu-heading h1 { font-size: 29px; }
+  .retro-btn-small { padding: 8px 10px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+/* Keep the core solo setup and start action ahead of optional wallet details. */
+.menu-main-content:not(.is-pvp-dashboard) > .menu-side-column,
+.menu-main-content:not(.is-pvp-dashboard) > .menu-primary-column { display: contents; }
+.menu-main-content:not(.is-pvp-dashboard) { gap: 16px; }
+.menu-main-content:not(.is-pvp-dashboard) .blox-rewards { order: 9; }
+.menu-main-content:not(.is-pvp-dashboard) .launch-ca-panel { order: 10; }
+.retro-selected .text-muted-foreground { color: #e2f3e9; }
+.main-menu-stack .retro-panel { background: #fffaf0; }
+.pause-state-grid > div { background: #edf2f5; border: 1px solid #cedbe5; border-radius: 9px; }
+.pause-state-grid span, .pause-state-grid strong, .pause-theme-block > p, .pause-eyebrow,
+.promotion-label, .move-history-san, .move-history-detail, .move-history-pending, .move-history-number { font-family: 'Nunito',sans-serif; font-size: 11px; }
+.pause-state-grid strong { font-size: 14px; }
+.pause-eyebrow { color: #397d68; letter-spacing: .15em; }
+.opponent-panel-name { white-space: normal; overflow: visible; font-size: 14px; }
+.opponent-panel-meter { background: #d6e3df; border-color: #bbcec9; border-radius: 3px; }
+.opponent-panel-meter span { background: #72ab91; }
+.cpu-taunt-bubble p { text-shadow: none !important; }
+.blox-home-footer { z-index: 4; }
+@media (max-width:760px) {
+  .game-topbar-actions .retro-btn-small { gap: 4px; }
+  .game-topbar-actions svg { width: 11px; height: 11px; }
+}
+.theme-selector-compact { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.theme-choice-label { white-space: normal; overflow: visible; text-overflow: clip; }
+.pause-theme-block { background: #f1f4f5; border: 1px solid #d4dfe5; border-radius: 10px; }
+.pause-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+.pause-actions .retro-btn { font-size: 11px; min-height: 42px; padding: 9px 12px; }
+.pause-panel, .confirm-panel { max-height: calc(100svh - 32px); overflow-y: auto; }
+@media (max-width:760px) {
+  .game-topbar-actions { display: grid; grid-template-columns: .8fr .9fr 1fr 1.55fr 1fr .8fr; gap: 4px; }
+  .game-topbar-actions .retro-btn-small { min-width: 0; padding: 5px 3px; font-size: 8px; }
+  .game-topbar-actions .retro-btn-small svg { display: none; }
+  .game-topbar-actions .retro-btn-small:first-child svg { display: block; }
+  .game-topbar { min-height: 98px; }
+}
+.lobby-browse-layout { align-items: stretch; }
+.lobby-match-setup, .lobby-directory-column { padding: 13px; border: 1px solid #d4dfe5; }
+.lobby-format-family-grid { grid-template-columns: 1fr 2.5fr 1.7fr; gap: 9px; }
+.lobby-format-family .lobby-format-row { display: flex; flex-wrap: nowrap; gap: 5px; }
+.lobby-format-family .retro-btn-small { flex: 1; width: auto; min-width: 0; padding: 9px 5px; }
+.lobby-format-family { background: transparent; grid-template-columns: minmax(0,1fr); }
+.blox-wallet { order: 8; }
+.blox-wallet summary { font-size: 11px; font-weight: 900; cursor: pointer; }
+.blox-wallet > .retro-panel { border: 0; border-radius: 0; box-shadow: none; padding: 16px 0 0; }
+.pause-state-grid strong { white-space: normal; text-overflow: clip; overflow: visible; line-height: 1.3; }
+@media (max-width:760px) {
+  .lobby-format-family-grid { grid-template-columns: 1fr; gap: 10px; }
+  .lobby-format-family { grid-template-columns: 58px minmax(0,1fr); }
+  .lobby-format-family .retro-btn-small { font-size: 11px; padding: 10px 5px; min-height: 44px; }
+}
+details.lobby-directory-column { display: block; }
+.lobby-directory-column > summary { color: #4a647c; font-size: 11px; font-weight: 900; cursor: pointer; }
+.lobby-directory-column[open] > summary { margin-bottom: 14px; }
+.lobby-directory-column[open] > div + div { margin-top: 11px; }
+[class*="text-[5px]"] { font-size: 10px; }
+.quick-chat-message-copy { border-radius: 8px; }
+.quick-chat-message-copy small { font-size: 10px; }
+.game-loading-track { background: #e1eaf0; border: 1px solid #c8d8df; border-radius: 5px; }
+.game-loading-track > span { background: #6baf93; }
+.blox-home-world, .blox-menu-world { pointer-events: none; }
+.turn-indicator.bg-foreground { background: #fffaf0; border-color: #8a9bab; }
+.turn-indicator.bg-background { background: #33465b; border-color: #8a9bab; }
+.blox-lost { position: relative; display: grid; place-items: center; min-height: 100svh; overflow: hidden; padding: 24px; background: #a9c4e5; }
+.blox-lost-world { position: absolute; inset: 0; pointer-events: none; opacity: .5; }
+.blox-lost-panel { position: relative; z-index: 1; width: min(440px,100%); text-align: center; padding: 32px; }
+.blox-lost-panel > svg { margin: 0 auto 20px; color: #4a8a77; }
+.blox-lost-panel .blox-eyebrow { justify-content: center; }
+.blox-lost-panel h1 { font: 44px 'Lilita One',sans-serif; margin: 14px 0; }
+.blox-lost-panel > p:not(.blox-eyebrow) { font-size: 14px; color: #60768c; line-height: 1.6; }
+.blox-lost-panel .retro-btn { margin-top: 25px; }
+@media (max-width:760px) {
+  .blox-home-world { top: 170px; height: 440px; }
+}
+@media (min-width:761px) {
+  .blox-world-caption { bottom: 8.5%; }
+}
+@media (min-width:761px) and (max-height:800px) {
+  .blox-home-copy { padding-top: 22px; }
+  .blox-title { font-size: clamp(88px,8vw,106px); margin-top: 18px; margin-bottom: 22px; }
+  .blox-tagline { font-size: 15px; margin-bottom: 23px; }
+  .blox-home-note { margin-top: 19px; }
+}
+/* ChessBlox: a little onchain sparkle, without losing the tactile game world. */
+.blox-crypto-strip { display:flex; align-items:center; gap:12px; margin-top:25px; font-size:11px; letter-spacing:.06em; color:#315d66; }
+.blox-crypto-strip span { padding:7px 11px; border:1px solid #e4ffffb0; border-radius:7px; background:#e2f9f14d; }
+.blox-crypto-strip i { font-style:normal; color:#5b7b9a; }
+.blox-home-note { margin-top:13px; }
+.blox-tour-link { position:absolute; z-index:10; bottom:90px; left:7%; font-size:12px; color:#315d66; text-decoration:underline; text-underline-offset:4px; }
+@media(min-width:1600px) { .blox-tour-link {left:10%;} }
+@media(max-width:760px) { .blox-crypto-strip {display:none;} .blox-tour-link {bottom:65px;left:50%;transform:translateX(-50%);white-space:nowrap;} }

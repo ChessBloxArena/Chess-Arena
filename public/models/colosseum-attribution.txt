@@ -1,0 +1,8 @@
+Colosseum GLB
+
+Source: https://zenodo.org/records/10357365
+Record title: Colosseum
+Creator listed on record: vladicom08
+Original source listed on record: Objaverse 1.0 / Sketchfab
+License listed on record: Creative Commons Attribution 4.0 International
+Downloaded file: a416564e36fb450594c45b1bce119188.glb
