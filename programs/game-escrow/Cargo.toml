@@ -1,0 +1,29 @@
+[package]
+name = "game-escrow"
+version = "0.0.0"
+description = "Generic Sol Jump game escrow Anchor program skeleton."
+edition = "2021"
+license = "UNLICENSED"
+
+[lib]
+name = "game_escrow"
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = []
+anchor-debug = []
+cpi = ["no-entrypoint"]
+custom-heap = []
+custom-panic = []
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = "1.0.2"
+anchor-spl = "1.0.2"
+solana-sha256-hasher = "3.1.0"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
