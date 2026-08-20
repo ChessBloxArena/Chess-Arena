@@ -1,0 +1,1 @@
+ALTER TABLE public.pvp_games REPLICA IDENTITY FULL;
