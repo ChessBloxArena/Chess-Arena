@@ -1,0 +1,15 @@
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { encodeDeployData, getAddress, createPublicClient, http, formatEther } from 'viem';
+const env = Object.fromEntries(readFileSync('.local/robinhood-signer.env','utf8').trim().split('\n').map(line=>line.split('=')));
+const authority = getAddress(env.ROBINHOOD_RESULT_AUTHORITY);
+const artifact = JSON.parse(readFileSync('artifacts/RobinhoodChessEscrow.json','utf8'));
+const client=createPublicClient({transport:http('https://rpc.mainnet.chain.robinhood.com')});
+if(await client.getChainId()!==4663) throw new Error('Wrong RPC chain');
+const data=encodeDeployData({abi:artifact.abi,bytecode:artifact.bytecode,args:[authority]});
+const gas=await client.estimateGas({account:authority,data});
+const gasPrice=await client.getGasPrice();
+const transaction={chainId:'0x1237',value:'0x0',data};
+mkdirSync('artifacts/escrow-deployment',{recursive:true});
+writeFileSync('artifacts/escrow-deployment/transaction.json',JSON.stringify(transaction,null,2));
+writeFileSync('artifacts/escrow-deployment/details.json',JSON.stringify({network:'Robinhood Chain',chainId:4663,contract:'RobinhoodChessEscrow',resultAuthority:authority,estimatedGas:gas.toString(),estimatedExecutionFeeEth:formatEther(gas*gasPrice),preparedAt:new Date().toISOString(),notes:'Unsigned contract creation. No ETH deposit value. Wallet estimates final gas; execution estimate excludes additional network fees. Result authority is immutable.'},null,2));
+console.log(JSON.stringify({resultAuthority:authority,estimatedExecutionFeeEth:formatEther(gas*gasPrice),unsigned:true}));
