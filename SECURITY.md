@@ -10,7 +10,7 @@ The publication guard checks the Git index before commit and every reachable fil
 
 ## Git identity
 
-Use `Anonymous Dev` with your GitHub noreply address. Run `npm run setup:anonymous-git` after cloning. The guards validate effective author/committer values (including environment overrides), commit messages, outgoing annotated tags, and signatures. Commit/tag signing is disabled locally to avoid exposing signing identities. Your GitHub account, public activity, and contribution links remain visible.
+Use `Anonymous Dev` with your GitHub noreply address. Run `npm run setup:anonymous-git` after cloning. The guards validate effective author/committer values (including environment overrides), commit messages, outgoing annotated tags, and signatures. Commit/tag signing is disabled locally to avoid exposing signing identities. GitHub-generated merge and bot commits may carry a platform signature: the guard permits it only when GitHub verifies the signature and attributes the committer to its `web-flow` account with `noreply@github.com`. Unknown signatures and unavailable verification fail closed. Your GitHub account, public activity, and contribution links remain visible.
 
 Hooks are repository-local and can be bypassed by Git flags. CI detects violations after upload; it cannot undo a disclosure. Do not bypass hooks to publish a failing snapshot. Branch protection and GitHub push protection are managed in repository settings.
 

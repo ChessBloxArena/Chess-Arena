@@ -19,6 +19,8 @@ jobs:
           persist-credentials: false
 
       - name: Check anonymous identities
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail

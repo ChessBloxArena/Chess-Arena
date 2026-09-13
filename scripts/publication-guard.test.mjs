@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -47,6 +47,19 @@ test('scans staged blobs and historical files even after working-tree cleanup', 
     assert.equal(run('bash', [identityGuard, 'config']).status, 0);
     assert.equal(run('bash', [identityGuard, 'config'], { GIT_AUTHOR_EMAIL: ['fixture', 'example.org'].join('@') }).status, 1);
     assert.equal(run('bash', [identityGuard, 'config'], { GIT_COMMITTER_NAME: 'Unapproved Name' }).status, 1);
+    const tree = git('rev-parse', 'HEAD^{tree}').stdout.trim();
+    const rawCommit = `tree ${tree}\nauthor Anonymous Dev <fixture@users.noreply.github.com> 1700000000 +0000\ncommitter GitHub <noreply@github.com> 1700000000 +0000\ngpgsig synthetic-test-signature\n\nSynthetic platform signature fixture\n`;
+    const signed = spawnSync('git', ['hash-object', '-t', 'commit', '-w', '--stdin'], { cwd, env, input: rawCommit, encoding: 'utf8' });
+    assert.equal(signed.status, 0, signed.stderr);
+    const bin = join(cwd, 'mock-bin');
+    mkdirSync(bin);
+    const mockEnv = { PATH: `${bin}:${env.PATH}`, GITHUB_REPOSITORY: 'fixture/repo' };
+    for (const [response, expected] of [['false', 1], ['true', 0]]) {
+      writeFileSync(join(bin, 'gh'), `#!/bin/sh\nprintf '%s\\n' '${response}'\n`, { mode: 0o755 });
+      assert.equal(run('bash', [identityGuard, 'commits', signed.stdout.trim()], mockEnv).status, expected);
+    }
+    writeFileSync(join(bin, 'gh'), '#!/bin/sh\nexit 1\n', { mode: 0o755 });
+    assert.equal(run('bash', [identityGuard, 'commits', signed.stdout.trim()], mockEnv).status, 1);
     writeFileSync(join(cwd, '.env.local'), 'SYNTHETIC=true\n');
     git('add', '-f', '.env.local');
     assert.equal(run('node', [guard, 'staged']).status, 1);
