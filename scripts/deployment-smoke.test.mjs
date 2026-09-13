@@ -46,7 +46,14 @@ test('production web deployment serves routes, assets, and readiness safely', as
     assert.equal((await request('/missing.js')).status, 404);
     assert.equal((await request('/.env')).status, 403);
     assert.equal((await request('/', { method: 'POST' })).status, 405);
-    assert.equal((await request('/%E0%A4%A')).status, 400);
+    const malformed = await request('/%E0%A4%A');
+    // Railway rejects invalid UTF-8 at its edge with 502 before the app receives it.
+    // The local server must still return 400; both paths must remain healthy.
+    const edgeRejected = new URL(base).hostname.endsWith('.up.railway.app') &&
+      malformed.headers.get('server') === 'railway-hikari' && malformed.status === 502;
+    if (edgeRejected) assert.equal(await malformed.text(), 'upstream error');
+    else assert.equal(malformed.status, 400);
+    assert.equal((await request('/health')).status, 200);
   } finally {
     if (child && child.exitCode === null) { child.kill('SIGTERM'); await once(child, 'exit'); }
   }
