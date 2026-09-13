@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="350" viewBox="0 0 1200 350" role="img" aria-labelledby="title desc">
+  <title id="title">ChessBlox — Make your move</title>
+  <desc id="desc">Emerald chessboard and gold crown on a dark green background.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#071e24"/><stop offset="1" stop-color="#174d43"/></linearGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M64 0H0V64" fill="none" stroke="#73d8c4" stroke-opacity=".07"/></pattern>
+    <pattern id="board" width="80" height="80" patternUnits="userSpaceOnUse"><path fill="#72baa3" d="M0 0h80v80H0z"/><path fill="#d7e9ca" d="M0 0h40v40H0zM40 40h40v40H40z"/></pattern>
+  </defs>
+  <rect width="1200" height="350" rx="20" fill="url(#bg)"/>
+  <rect width="1200" height="350" rx="20" fill="url(#grid)"/>
+  <path d="M50 49h38" stroke="#eac77d" stroke-width="4"/>
+  <text x="50" y="87" fill="#8ed6c3" font-family="Arial,sans-serif" font-size="13" letter-spacing="5">WELCOME TO THE ARENA</text>
+  <text x="46" y="180" fill="#f3f5e8" font-family="Arial,sans-serif" font-size="82" font-weight="800" letter-spacing="-3">ChessBlox</text>
+  <text x="50" y="231" fill="#c5ded4" font-family="Arial,sans-serif" font-size="24">Make your move.</text>
+  <text x="50" y="300" fill="#8ed6c3" font-family="Arial,sans-serif" font-size="12" letter-spacing="3">3D CHESS  /  CPU PRACTICE  /  ONLINE PLAY</text>
+  <g transform="translate(866 185) rotate(-30) skewX(30) scale(1 .86)">
+    <rect x="-120" y="-75" width="240" height="240" rx="4" fill="#062b2a" transform="translate(0 12)"/>
+    <rect x="-120" y="-75" width="240" height="240" fill="url(#board)" stroke="#a6d5bb" stroke-width="3"/>
+  </g>
+  <path d="m844 97 20 27 22-49 22 49 20-27-10 67h-64z" fill="#eac77d" stroke="#f7e8ac" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="851" y="173" width="70" height="12" rx="3" fill="#eac77d"/>
+  <circle cx="1020" cy="58" r="4" fill="#eac77d"/><circle cx="756" cy="80" r="2" fill="#8ed6c3"/>
+</svg>

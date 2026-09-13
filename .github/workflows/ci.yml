@@ -1,0 +1,49 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run test:guards
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npm run test:deploy
+  publication:
+    name: Publication safety
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: npm run setup:security
+      - run: node scripts/publication-guard.mjs commits HEAD
+      - run: bash scripts/secret-scan.sh commits HEAD
+  referee:
+    name: Referee typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check --config supabase/functions/pvp-referee/deno.json supabase/functions/pvp-referee/index.ts
