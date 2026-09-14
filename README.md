@@ -43,7 +43,7 @@ npm ci
 npm run dev
 ```
 
-Open [localhost:8080](http://localhost:8080). CPU practice works without a wallet or backend credentials. Identity setup uses the signed-in GitHub CLI account's noreply address; without `gh`, set `GITHUB_NOREPLY_EMAIL` to your GitHub noreply address first. Security setup installs a checksum-verified Gitleaks binary inside the ignored `.local/` directory.
+Open [localhost:8080](http://localhost:8080). CPU practice works without a wallet or backend credentials. Identity setup reads `.gitidentity` and uses the project identity `ChessBlox Team <team@chessblox.invalid>` without consulting your GitHub account. GitHub pull requests, comments, and other account activity remain attributable to the account used to publish them. Security setup installs a checksum-verified Gitleaks binary inside the ignored `.local/` directory.
 
 For online features, copy `.env.example` to `.env.local` and configure your own Supabase project. `VITE_*` values are compiled into the browser bundle: use only public configuration and publishable keys. Keep signing keys, service-role credentials, and other secrets on the server.
 
