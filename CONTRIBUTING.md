@@ -2,6 +2,11 @@
 
 Use Node.js 22 and npm. The npm lockfile is authoritative.
 
+Development branches and dependency-update pull requests belong in the private
+`ChessBloxArena/Chess-Arena-development` repository. The public repository is a
+release mirror. Deploy and verify a candidate from private development before
+opening a public release pull request. See [release order](docs/public/deployment.md#release-order).
+
 ```sh
 npm run setup:anonymous-git
 npm run setup:security

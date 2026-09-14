@@ -1,5 +1,13 @@
 # Railway deployment
 
+## Release order
+
+1. Keep feature branches, dependency updates, and their review in the private `ChessBloxArena/Chess-Arena-development` repository. Local `origin` should point there; use an explicitly named `public` remote for the public release mirror.
+2. Run CI, identity checks, publication checks, and secret scanning on the private candidate. Deploy its reviewed Git snapshot to the intended Railway environment, wait for success, and verify the live deployment. Record the source revision, deployment ID, target environment, and test results privately.
+3. Only after that verification, open a public release pull request containing the reviewed release. Preserve the public Dependabot limits of zero; enable dependency proposals only in private development. Merge after the public checks pass, then delete the temporary release branch. Do not push development branches, internal evidence, or all local refs to the public remote.
+
+A preview deployment verifies only the preview's configuration and features. It does not verify production backend migrations or funded settlement. Railway deployments currently use explicit CLI uploads; merging a repository branch alone does not deploy it.
+
 ## Public preview
 
 The [public preview](https://public-preview-public-preview.up.railway.app) is an isolated web service in the `public-preview` environment. It has no production backend credentials and leaves real-money entry disabled. It exercises CPU practice, the production build, runtime assets, routing, and health checks.

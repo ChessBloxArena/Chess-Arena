@@ -51,7 +51,9 @@ scan_text_for_emails() {
   local text="$2"
   local emails
 
-  emails="$(printf '%s\n' "$text" | grep -Eio '[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}' || true)"
+  # Dependabot adds this public support address to its standard sign-off.
+  # Keep the exception limited to that exact trailer, never commit identities.
+  emails="$(printf '%s\n' "$text" | sed '/^Signed-off-by: dependabot\[bot\] <support@github\.com>$/d' | grep -Eio '[][A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}' || true)"
   while IFS= read -r email; do
     [ -z "$email" ] && continue
     if ! is_allowed_email "$email"; then

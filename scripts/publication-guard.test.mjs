@@ -50,6 +50,17 @@ test('scans staged blobs and historical files even after working-tree cleanup', 
     assert.equal(run('bash', [identityGuard, 'config']).status, 0);
     assert.equal(run('bash', [identityGuard, 'config'], { GIT_AUTHOR_EMAIL: ['fixture', 'example.org'].join('@') }).status, 1);
     assert.equal(run('bash', [identityGuard, 'config'], { GIT_COMMITTER_NAME: 'Unapproved Name' }).status, 1);
+    const botMessage = join(cwd, 'bot-message.txt');
+    for (const [trailer, expected] of [
+      ['Signed-off-by: dependabot[bot] <support@github.com>', 0],
+      ['Signed-off-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>', 0],
+      ['Signed-off-by: dependabot[bot] <fixture@example.org>', 1],
+      ['Co-authored-by: ChessBlox Team <support@github.com>', 1],
+      ['Co-authored-by: fixture[bot] <123+fixture[bot]@users.noreply.github.com>', 1],
+    ]) {
+      writeFileSync(botMessage, `${trailer}\n`);
+      assert.equal(run('bash', [identityGuard, 'message', botMessage]).status, expected, trailer);
+    }
     for (const email of ['123456+fixture@users.noreply.github.com', 'fixture@users.noreply.github.com']) {
       assert.equal(run('bash', [identityGuard, 'config'], { GIT_AUTHOR_EMAIL: email }).status, 1);
       assert.equal(run('bash', [identityGuard, 'config'], { GIT_COMMITTER_EMAIL: email }).status, 1);
