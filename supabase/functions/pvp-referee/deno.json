@@ -1,8 +1,9 @@
 {
+  "nodeModulesDir": "none",
   "imports": {
     "@supabase/functions-js": "jsr:@supabase/functions-js@^2",
-    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.98.0",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.116.0",
     "chess.js": "npm:chess.js@1.4.0",
-    "viem": "npm:viem@2.56.3"
+    "viem": "npm:viem@2.56.5"
   }
 }

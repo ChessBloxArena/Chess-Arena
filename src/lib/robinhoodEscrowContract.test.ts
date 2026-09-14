@@ -1,6 +1,6 @@
 // @vitest-environment node
-import { beforeAll, describe, expect, it } from "vitest";
-import ganache from "ganache";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createLocalEvm } from "../test/localEvm";
 import solc from "solc";
 import { readFileSync } from "node:fs";
 import {
@@ -15,7 +15,8 @@ import {
   type Address,
   type Hex,
 } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+
+const { provider, accounts: localAccounts, close } = await createLocalEvm();
 
 interface Artifact { abi: Abi; bytecode: Hex }
 
@@ -40,10 +41,8 @@ function compileContracts(): Record<string, Artifact> {
 }
 
 describe("RobinhoodChessEscrow", () => {
-  const provider = ganache.provider({ logging: { quiet: true }, wallet: { deterministic: true } });
-  const testChain = defineChain({ id: 1337, name: "Ganache", nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: ["http://127.0.0.1"] } } });
+  const testChain = defineChain({ id: 1337, name: "Local escrow test", nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: ["http://127.0.0.1"] } } });
   const publicClient = createPublicClient({ chain: testChain, transport: custom(provider as never), pollingInterval: 10 });
-  const localAccounts = Object.values(provider.getInitialAccounts()).map((entry) => privateKeyToAccount(entry.secretKey as Hex));
   const wallet = createWalletClient({ account: localAccounts[0], chain: testChain, transport: custom(provider as never) });
   const artifacts = compileContracts();
   let accounts: readonly Address[];
@@ -69,6 +68,7 @@ describe("RobinhoodChessEscrow", () => {
     accounts = localAccounts.map((account) => account.address);
     escrow = await deploy(artifacts.RobinhoodChessEscrow, accounts[0], [accounts[2]]);
   });
+  afterAll(close);
 
   it("escrows equal native ETH stakes and lets only the winner claim the pot", async () => {
     const contest = keccak256(stringToHex("eth-prize"));

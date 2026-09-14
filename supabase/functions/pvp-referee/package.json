@@ -1,0 +1,9 @@
+{
+  "name": "chessblox-referee",
+  "private": true,
+  "type": "module",
+  "overrides": {
+    "uuid": "11.1.1",
+    "stream-json": "3.6.0"
+  }
+}

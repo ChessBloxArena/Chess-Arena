@@ -7,7 +7,7 @@ import "@supabase/functions-js/edge-runtime.d.ts";
 import { validTransactionReference } from "./transactionReference.ts";
 import { wagerPilotAllowsWallet } from "./wagerPilot.ts";
 import { createClient } from "@supabase/supabase-js";
-import { Connection, PublicKey } from "npm:@solana/web3.js@1.98.4";
+import { Connection, PublicKey } from "npm:@solana/web3.js@1.99.0";
 import { createPublicClient, http, getAddress, isAddress, type Hex } from "viem";
 import { sha256 as sha256Bytes } from "npm:@noble/hashes@1.8.0/sha256";
 import {
@@ -908,14 +908,16 @@ function rowPaymentMode(row: PvpGameRow): WagerPaymentMode {
   return row.payment_mode === "native_sol_sponsored" ? "native_sol_sponsored" : "wsol_escrow";
 }
 
-interface WsolEscrowLaneQuery<TSelf> {
-  or(filters: string): TSelf;
+interface WsolEscrowLaneQuery {
+  or(filters: string): unknown;
 }
 
-function guardWsolEscrowLane<T extends WsolEscrowLaneQuery<T>>(query: T): T {
-  return query
-    .or("payment_mode.is.null,payment_mode.eq.wsol_escrow,payment_mode.eq.robinhood_eth_escrow")
-    .or("wager_asset_kind.is.null,wager_asset_kind.eq.spl_token,wager_asset_kind.eq.native_eth");
+function guardWsolEscrowLane<T extends WsolEscrowLaneQuery>(query: T): T {
+  // PostgREST filters mutate and return the same builder. Avoid recursively
+  // expanding its inferred result type when checking the filter capability.
+  query.or("payment_mode.is.null,payment_mode.eq.wsol_escrow,payment_mode.eq.robinhood_eth_escrow");
+  query.or("wager_asset_kind.is.null,wager_asset_kind.eq.spl_token,wager_asset_kind.eq.native_eth");
+  return query;
 }
 
 function isPracticeMatchmakingRow(row: PvpGameRow): boolean {

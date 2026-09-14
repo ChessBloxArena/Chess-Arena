@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "install": {
+      "deployOutputs": [],
+      "commands": [
+        { "path": "/app/node_modules/.bin" },
+        { "src": "package-lock.json", "dest": "package-lock.json" },
+        { "src": "package.json", "dest": "package.json" },
+        { "src": "vendor", "dest": "vendor" },
+        "npm exec --yes --package=npm@11.19.1 -- npm ci --no-audit --no-fund"
+      ]
+    }
+  }
+}

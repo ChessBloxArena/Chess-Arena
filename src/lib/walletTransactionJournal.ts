@@ -79,7 +79,7 @@ export function runRecoverableTransaction(input: {
     return hash;
   };
   // Web Locks also serializes wallet operations across tabs on this origin.
-  const promise = (typeof navigator !== "undefined" && navigator.locks
+  const promise = Promise.resolve(typeof navigator !== "undefined" && navigator.locks
     ? navigator.locks.request(prefix + input.identity, run)
     : run()).finally(() => inFlight.delete(input.identity));
   inFlight.set(input.identity, promise);

@@ -1,10 +1,9 @@
 // @vitest-environment node
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import ganache from 'ganache';
+import { createLocalEvm } from '../test/localEvm';
 import solc from 'solc';
 import { readFileSync } from 'node:fs';
 import { createPublicClient, createWalletClient, custom, defineChain, encodeFunctionData, keccak256, stringToHex, type Abi, type Address, type Hex } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
 import { automaticRblxAbi } from '../../supabase/functions/_shared/automaticRblx.mjs';
 
 const sources = Object.fromEntries(['RobinhoodChessEscrowV2.sol', 'test/AutomaticPayoutMocks.sol'].map(name => [name, { content: readFileSync(`contracts/${name}`, 'utf8') }]));
@@ -12,11 +11,10 @@ const compiled = JSON.parse(solc.compile(JSON.stringify({ language: 'Solidity', 
 if (compiled.errors?.some((e: {severity: string}) => e.severity === 'error')) throw new Error(JSON.stringify(compiled.errors));
 const artifacts: Record<string, {abi: Abi; bytecode: Hex}> = {};
 for (const file of Object.values(compiled.contracts) as Array<Record<string, {abi: Abi; evm: {bytecode: {object: string}}}>>) for (const [name, contract] of Object.entries(file)) artifacts[name] = { abi: contract.abi, bytecode: `0x${contract.evm.bytecode.object}` };
+const { provider, accounts, close } = await createLocalEvm();
 
 describe('Automatic RBLX escrow money invariants', () => {
-  const provider = ganache.provider({ logging: { quiet: true }, wallet: { deterministic: true } });
   const chain = defineChain({ id: 1337, name: 'Local payout test', nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 }, rpcUrls: { default: { http: ['http://127.0.0.1'] } } });
-  const accounts = Object.values(provider.getInitialAccounts()).map(a => privateKeyToAccount(a.secretKey as Hex));
   const client = createPublicClient({ chain, transport: custom(provider as never), pollingInterval: 10, cacheTime: 0 });
   const wallet = createWalletClient({ chain, transport: custom(provider as never) });
   let escrow: Address, router: Address, token: Address;
@@ -43,7 +41,7 @@ describe('Automatic RBLX escrow money invariants', () => {
   };
   const route = (to: Address, amount: bigint) => encodeFunctionData({ abi: artifacts.MockSwapRouter.abi, functionName: 'swap', args: [to, amount] });
   beforeAll(async () => { token = await deploy('MockRblx'); router = await deploy('MockSwapRouter', [token]); escrow = await deploy('RobinhoodChessEscrowV2', [accounts[2].address, router, token]); }, 30_000);
-  afterAll(async () => { await provider.disconnect(); });
+  afterAll(close);
   it('has no legacy entry bypass, zero minimum, or unequal deposit path', async () => {
     expect(artifacts.RobinhoodChessEscrowV2.abi.some(e => e.type === 'function' && e.name === 'createContest')).toBe(false);
     await expect(send(0, 'createRblxContest', [id('zero'), await stamp() + 3600n, 0n], stake)).rejects.toThrow();

@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 let player: HTMLAudioElement;
-let play: ReturnType<typeof vi.fn>;
+let play: ReturnType<typeof vi.fn<() => Promise<void>>>;
 let music: typeof import('./music');
 async function flush() { await Promise.resolve(); await Promise.resolve(); }
 beforeEach(async () => {
   vi.resetModules();
-  play = vi.fn().mockResolvedValue(undefined);
-  vi.stubGlobal('Audio', vi.fn((src: string) => {
+  play = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
+  vi.stubGlobal('Audio', vi.fn(function (src: string) {
     player = document.createElement('audio'); player.src = src;
     player.play = play; player.pause = vi.fn();
     return player;

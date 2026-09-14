@@ -15,7 +15,7 @@ The [public preview](https://public-preview-public-preview.up.railway.app) is an
 ## Web service
 
 1. Create a Railway service from this repository, or link a local checkout with `railway link`.
-2. Use Node.js 22 and the root `railway.toml`. It selects Railpack, `npm run build`, `npm start`, and the `/health` readiness check. The server listens on Railway's `PORT` and `0.0.0.0`.
+2. Use Node.js 22 and the root `railway.toml`. It selects Railpack, `npm run build`, `npm start`, and the `/health` readiness check. `railpack.json` copies the local compatibility package before installing the lockfile with pinned npm 11.19.1. Use the same npm version locally and in CI; npm 10 does not reliably resolve this dependency tree. The server listens on Railway's `PORT` and `0.0.0.0`.
 3. Set `CHESS_ARENA_SERVICE_ROLE=web`. For a practice preview, leave Supabase variables unset. Keep `VITE_WAGER_NEW_WAGERS_ENABLED=false`, `VITE_WAGER_REAL_ESCROW_ENABLED=false`, and `VITE_AUTOMATIC_RBLX_PAYOUT_ENABLED=false`.
 4. For online play, configure your own `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` before building. Never put backend credentials in browser-prefixed variables.
 5. Deploy to an explicit target and create a Railway domain:
@@ -38,7 +38,27 @@ The smoke test checks `/health`, the app shell, deep-link fallback, a production
 
 Before promoting this frontend to an existing online environment, verify that all required Supabase migrations have been applied, including `20260908201905_saved_play_consent.sql`, and deploy the matching `pvp-referee` function. This source import does not apply production migrations.
 
+Then run the compatibility probe with that environment's public frontend settings:
+
+```sh
+npm run release:backend
+```
+
+It requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the process environment. It checks that the saved-consent table exists and denies browser reads, then verifies that an authenticated quote request without consent is rejected by the current referee. It generates an ephemeral unfunded authentication identity; it does not accept terms, create a wager, submit a financial transaction, or save a wallet key. A failed probe blocks promotion of this frontend, even if the web health check passes. This focused check does not certify payouts, all database policies, or the full deployed function's source revision.
+
 Keep legacy escrow configuration for existing matches. Automatic RBLX entry additionally requires a separately deployed and verified V2 contract, compatible referee and worker configuration, and wallet-authorized end-to-end validation. Publishing the web app must not enable these features implicitly.
+
+## Isolated wallet lifecycle verification
+
+With Docker, Deno 2, Node 22, and dependencies installed, run:
+
+```sh
+npm run supabase:functions:check
+npm run test:referee-rpc
+npm run test:wallet-lifecycle
+```
+
+The lifecycle test creates disposable PostgreSQL and PostgREST containers, applies every migration, generates temporary test accounts, and starts an in-memory EVM. The real referee verifies signed deposits and game results; the real worker submits and reconciles settlement. Assertions cover the exact winner payout after gas, duplicate claims, worker restart, wallet recovery, draws, unmatched refunds, and expired refund reconciliation. All balances are simulated. Test keys stay in memory, backend network access is limited to loopback, and the script removes its own containers when it exits normally. Reports stay in ignored `.local/launch-remediation/`. This verifies component integration; it does not verify browser wallet prompts, production deployment, or real-network payments.
 
 ## Settlement worker
 

@@ -39,7 +39,7 @@ git clone https://github.com/ChessBloxArena/Chess-Arena.git
 cd Chess-Arena
 npm run setup:anonymous-git
 npm run setup:security
-npm ci
+npm exec --yes --package=npm@11.19.1 -- npm ci
 npm run dev
 ```
 

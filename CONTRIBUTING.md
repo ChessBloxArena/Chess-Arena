@@ -10,7 +10,7 @@ opening a public release pull request. See [release order](docs/public/deploymen
 ```sh
 npm run setup:anonymous-git
 npm run setup:security
-npm ci
+npm exec --yes --package=npm@11.19.1 -- npm ci
 npm run dev
 ```
 

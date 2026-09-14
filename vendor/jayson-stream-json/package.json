@@ -1,0 +1,15 @@
+{
+  "name": "@chessblox/jayson-stream-json",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Jayson's legacy stream API backed by patched stream-json 3",
+  "exports": {
+    "./streamers/StreamValues": "./stream-values.cjs",
+    "./utils/Verifier": "./verifier.cjs"
+  },
+  "dependencies": {
+    "stream-json-current": "npm:stream-json@3.6.0"
+  },
+  "engines": { "node": ">=22.13.0" }
+}
