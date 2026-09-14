@@ -8,7 +8,10 @@
         { "src": "package-lock.json", "dest": "package-lock.json" },
         { "src": "package.json", "dest": "package.json" },
         { "src": "vendor", "dest": "vendor" },
-        "npm exec --yes --package=npm@11.19.1 -- npm ci --no-audit --no-fund"
+        "npm install --global corepack@0.36.0",
+        "corepack enable npm",
+        "corepack prepare --activate",
+        "npm ci --no-audit --no-fund"
       ]
     }
   }
