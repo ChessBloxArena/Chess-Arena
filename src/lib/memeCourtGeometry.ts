@@ -4,12 +4,14 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 
 export type CourtRole = 'p' | 'r' | 'n' | 'b' | 'q' | 'k';
 type Vec3 = [number, number, number];
-type Part = 'base' | 'body' | 'leftLeg' | 'rightLeg' | 'head' | 'metal' | 'headMetal';
+type Part = 'base' | 'body' | 'leftLeg' | 'rightLeg' | 'head' | 'metal' | 'headMetal' | 'leftArm' | 'leftForearm' | 'rightArm' | 'rightForearm';
 export const COURT_ROLES: CourtRole[] = ['p', 'r', 'n', 'b', 'q', 'k'];
 export const COURT_HEIGHTS: Record<CourtRole, number> = { p: 1.25, r: 1.53, n: 1.68, b: 1.83, q: 1.62, k: 1.84 };
 const HEAD_Y = 1.11;
 const modelCache = new Map<string, CourtModel>();
+export interface ArmJoints { shoulder: Vec3; elbow: Vec3; hand: Vec3 }
 interface CourtModel {
+  arms: { left: ArmJoints; right: ArmJoints };
   parts: Record<Part, THREE.BufferGeometry>;
   face: THREE.BufferGeometry;
   scale: number;
@@ -31,7 +33,8 @@ export function getCourtModel(role: CourtRole, clothColor: string, accentColor: 
     trim: dark ? '#a88bed' : '#429b9b', gold: '#d6a13f', goldLight: '#f4d585',
     ink: '#17263b', hair: role === 'q' ? '#6b3822' : '#98502a', hairLight: '#c67b3f',
   };
-  const parts: Record<Part, THREE.BufferGeometry[]> = { base: [], body: [], leftLeg: [], rightLeg: [], head: [], metal: [], headMetal: [] };
+  const parts: Record<Part, THREE.BufferGeometry[]> = { base: [], body: [], leftLeg: [], rightLeg: [], head: [], metal: [], headMetal: [], leftArm: [], leftForearm: [], rightArm: [], rightForearm: [] };
+  const arms = {} as CourtModel['arms'];
   let part: Part = 'body';
   function add(geo: THREE.BufferGeometry, pos: Vec3, color: string, rotation: Vec3 = [0, 0, 0]) {
     const geometry = geo.index ? geo.toNonIndexed() : geo;
@@ -131,13 +134,17 @@ export function getCourtModel(role: CourtRole, clothColor: string, accentColor: 
       geo.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), end.clone().sub(start).normalize()));
       add(geo, mid.toArray() as Vec3, color);
     };
+    arms[side === -1 ? 'left' : 'right'] = { shoulder, elbow, hand };
+    part = side === -1 ? 'leftArm' : 'rightArm';
     segment(shoulder, elbow, role === 'r' ? .225 : .185, c.cloth);
+    part = side === -1 ? 'leftForearm' : 'rightForearm';
     segment(elbow, hand, .175, c.panel);
     box([hand[0], hand[1] + (pose === 'wave' ? -.055 : .044), hand[2]], [.182, .049, .192], c.seam, .012);
     box(hand, [.163, .147, .174], c.skin, .027, [pose === 'prayer' ? -.28 : 0, 0, pose === 'wave' ? side * -.15 : 0]);
     box([hand[0] - side * .079, hand[1] + .011, hand[2] + .056], [.059, .091, .073], c.skinShade, .02);
   }
   for (const s of [-1, 1]) arm(s, role === 'r' ? 'cross' : role === 'b' ? 'prayer' : role === 'q' ? 'hip' : (role === 'p' || role === 'n' || role === 'k') && s === 1 ? 'wave' : 'down');
+  part = 'body';
 
   if (role === 'r') {
     // Padded vest panels, center zip and pocket piping.
@@ -283,7 +290,7 @@ export function getCourtModel(role: CourtRole, clothColor: string, accentColor: 
   const index = COURT_ROLES.indexOf(role), uv = face.attributes.uv;
   for (let i = 0; i < uv.count; i++) uv.setXY(i, (index % 3 + uv.getX(i)) / 3, (1 - Math.floor(index / 3) + uv.getY(i)) / 2);
   const scale = role === 'p' ? .85 : role === 'r' ? .94 : 1;
-  const model = { parts: merged, face, scale, headY: HEAD_Y };
+  const model = { parts: merged, face, scale, headY: HEAD_Y, arms };
   modelCache.set(key, model);
   return model;
 }

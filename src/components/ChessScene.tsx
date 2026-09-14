@@ -15,10 +15,12 @@ import { BloxWorld } from './BloxWorld';
 import { MemeCourtPiece } from './MemeCourtPiece';
 import { PUSH_IMPACT_TIME } from '@/lib/pushMotion';
 import { samplePieceMotion, PIECE_MOVE_DURATION } from '@/lib/pieceMotion';
-import { PIECE_DEFEAT_DURATION, samplePieceDefeat, type DefeatClock } from '@/lib/pieceDefeat';
+import { samplePieceDefeat, type DefeatClock } from '@/lib/pieceDefeat';
 import type { RefObject } from 'react';
 import { CourtSquareHighlight, CourtPieceAccent, CourtKingWarning } from './CourtHighlights';
 import { courtTileColor, getCaptureTargets, type CourtTileState } from '@/lib/courtHighlights';
+import { CAPTURE_CLEAR, CAPTURE_DURATION, CAPTURE_IMPACT, CAPTURE_HOLD_END, sampleCaptureMotion, sampleCaptureVictim, type CaptureAnimation } from '@/lib/captureMotion';
+import { COURT_HEIGHTS, type CourtRole } from '@/lib/memeCourtGeometry';
 const BOARD_RAISE = 0.16;
 const BOARD_COORDINATE_OFFSET = 4.22 * BOARD_SQUARE_SIZE;
 const BOARD_COORDINATE_Y = 0.04;
@@ -39,6 +41,7 @@ interface BoardPiece {
 }
 
 interface CaptureGhost {
+  attack: CaptureAnimation;
   id: string;
   color: 'w' | 'b';
   type: string;
@@ -158,13 +161,13 @@ function applyGroupOpacity(group: THREE.Group | null, opacity: number) {
     materials.forEach((material) => {
       if (!material.transparent) { material.transparent = true; material.needsUpdate = true; }
       material.opacity = opacity;
-      material.depthWrite = opacity > .97;
+      material.depthWrite = !mesh.userData.preserveMaterial && opacity > .97;
     });
   });
 }
 
-function PieceBody({ type, pieceColor, accentColor, expressive = false, threatened = false, defeatClock }: { type: string; pieceColor: string; accentColor: string; expressive?: boolean; threatened?: boolean; defeatClock?: RefObject<DefeatClock> }) {
-  return <MemeCourtPiece type={type} color={pieceColor} accentColor={accentColor} expressive={expressive} threatened={threatened} defeatClock={defeatClock} />;
+function PieceBody({ type, pieceColor, accentColor, expressive = false, threatened = false, defeatClock, attack }: { type: string; pieceColor: string; accentColor: string; expressive?: boolean; threatened?: boolean; defeatClock?: RefObject<DefeatClock>; attack?: CaptureAnimation }) {
+  return <MemeCourtPiece type={type} color={pieceColor} accentColor={accentColor} expressive={expressive} threatened={threatened} defeatClock={defeatClock} attack={attack} />;
 }
 
 function ChessPiece3D({
@@ -200,6 +203,8 @@ function ChessPiece3D({
     from: [number, number, number];
     tone: MoveFeedbackTone;
     piece: string;
+    attack?: CaptureAnimation;
+    captureTarget?: [number, number, number];
   } | null;
   isHovered?: boolean;
   isSelected?: boolean;
@@ -235,7 +240,7 @@ function ChessPiece3D({
     moveStateRef.current = { id: moveAnimation.id, elapsed: 0 };
   }, [moveAnimation]);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     const group = groupRef.current;
     if (!group) return;
 
@@ -246,14 +251,23 @@ function ChessPiece3D({
     const to = new THREE.Vector3(...position);
     let nextPosition = to;
     const animation = animationRef.current;
-    const motion = samplePieceMotion(animation?.piece ?? type, moveStateRef.current.elapsed, reducedMotion);
-    const moving = Boolean(animation && moveStateRef.current.elapsed < PIECE_MOVE_DURATION && !isDragging && !reducedMotion);
+    const elapsed = animation?.attack ? clock.elapsedTime - animation.attack.startedAt : moveStateRef.current.elapsed;
+    const captureTarget = new THREE.Vector3(...(animation?.captureTarget ?? position));
+    const distance = animation ? captureTarget.distanceTo(new THREE.Vector3(...animation.from)) : 1;
+    const capture = animation?.attack ? sampleCaptureMotion(animation.piece, elapsed, distance, animation.attack.victimHeight, reducedMotion) : null;
+    const motion = capture ? { ...capture, sway: 0 } : samplePieceMotion(animation?.piece ?? type, elapsed, reducedMotion);
+    const moving = Boolean(animation && elapsed < (capture ? CAPTURE_DURATION : PIECE_MOVE_DURATION) && !isDragging && !reducedMotion);
     if (isDragging && dragPosition) {
       nextPosition = new THREE.Vector3(dragPosition[0], dragPosition[1] + DRAG_LIFT, dragPosition[2]);
     } else if (moving && animation) {
       const from = new THREE.Vector3(...animation.from);
-      direction.copy(to).sub(from).normalize();
-      nextPosition = from.lerp(to, motion.progress);
+      direction.copy(capture ? captureTarget : to).sub(from).normalize();
+      nextPosition = from.lerp(capture ? captureTarget : to, motion.progress);
+      if (capture && animation.captureTarget) {
+        // En passant hits the pawn on its actual square, then takes the legal destination.
+        const t = THREE.MathUtils.smoothstep(elapsed, CAPTURE_CLEAR, CAPTURE_DURATION);
+        nextPosition.addScaledVector(to.clone().sub(captureTarget), t);
+      }
       nextPosition.y += motion.lift;
       nextPosition.x += direction.z * motion.sway;
       nextPosition.z -= direction.x * motion.sway;
@@ -264,7 +278,7 @@ function ChessPiece3D({
     const dangerShake = isKingInDanger && !isCheckmatedKing && !reducedMotion ? Math.sin(dangerRef.current.elapsed * 48) * 0.026 : 0;
     group.rotation.set(
       (moving ? direction.z * motion.lean : 0),
-      rotationY + dangerShake + (moving ? motion.yaw : 0),
+      rotationY + dangerShake + (moving ? motion.yaw + (capture ? Math.atan2(Math.sin(Math.atan2(direction.x, direction.z) - rotationY), Math.cos(Math.atan2(direction.x, direction.z) - rotationY)) * capture.face : 0) : 0),
       (moving ? -direction.x * motion.lean + motion.roll : 0) + dangerShake * 0.75,
     );
 
@@ -277,7 +291,7 @@ function ChessPiece3D({
   return (
     <group
       ref={groupRef}
-      position={position}
+      position={!reducedMotion && moveAnimation ? moveAnimation.from : position}
       rotation={[0, rotationY, 0]}
       onClick={(e) => {
         e.stopPropagation();
@@ -348,58 +362,53 @@ function ChessPiece3D({
       }}
     >
       {(isHovered || isSelected || isDragging || moveAnimation) && <CourtPieceAccent selected={isSelected || isDragging} hovered={isHovered} moveId={moveAnimation?.id} theme={sceneTheme} />}
-      <PieceBody type={type} pieceColor={pieceColor} accentColor={accentColor} expressive={isHovered || isSelected || isDragging} threatened={isKingInDanger} defeatClock={defeatClock} />
+      <PieceBody type={type} pieceColor={pieceColor} accentColor={accentColor} expressive={isHovered || isSelected || isDragging} threatened={isKingInDanger} defeatClock={defeatClock} attack={animationRef.current?.attack} />
     </group>
   );
 }
 
-function CapturedPieceGhost({
-  id,
-  type,
-  color,
-  position,
-  direction,
-  facingRotation,
-  sceneTheme,
-  onComplete,
-}: {
-  id: string;
-  type: string;
-  color: 'w' | 'b';
-  position: [number, number, number];
-  direction: [number, number];
-  facingRotation: number;
-  sceneTheme: ArenaSceneTheme;
-  onComplete: (id: string) => void;
+function CapturedPieceGhost({ id, type, color, position, direction, attack, facingRotation, sceneTheme, onComplete }: CaptureGhost & {
+  facingRotation: number; sceneTheme: ArenaSceneTheme; onComplete: (id: string) => void;
 }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const elapsedRef = useRef(0);
+  const groupRef = useRef<THREE.Group>(null), burstRef = useRef<THREE.Group>(null);
   const completedRef = useRef(false);
+  const defeatClock = useRef<DefeatClock>({ elapsed: 0, active: false });
   const pieceColor = color === 'w' ? sceneTheme.whitePiece : sceneTheme.blackPiece;
   const accentColor = color === 'w' ? sceneTheme.whiteAccent : sceneTheme.blackAccent;
-
-  const defeatClock = useRef<DefeatClock>({ elapsed: 0, active: false });
-  useEffect(() => { applyGroupOpacity(groupRef.current, 1); }, []);
-  useFrame((_, delta) => {
-    elapsedRef.current += delta;
-    if (elapsedRef.current < PUSH_IMPACT_TIME) return;
-    const elapsed = elapsedRef.current - PUSH_IMPACT_TIME;
-    defeatClock.current.elapsed = elapsed;
-    defeatClock.current.active = true;
-    const pose = samplePieceDefeat(type, elapsed);
+  useFrame(({ clock }) => {
+    const elapsed = clock.elapsedTime - attack.startedAt;
+    const motion = sampleCaptureVictim(attack.piece, elapsed);
+    defeatClock.current.elapsed = motion.defeatTime;
+    defeatClock.current.active = elapsed > CAPTURE_HOLD_END;
+    const pose = samplePieceDefeat(type, motion.defeatTime);
     const group = groupRef.current;
     if (group) {
-      group.position.set(position[0] + (direction[0] - direction[1] * .70) * pose.slide, position[1] + pose.lift, position[2] + (direction[1] + direction[0] * .70) * pose.slide);
-      group.rotation.set(pose.pitch, facingRotation + pose.yaw, pose.roll);
-      applyGroupOpacity(group, pose.opacity);
+      group.position.set(position[0] + direction[0] * motion.forward - direction[1] * motion.sideways, position[1] + motion.lift, position[2] + direction[1] * motion.forward + direction[0] * motion.sideways);
+      group.rotation.set(attack.piece === 'n' ? 0 : pose.pitch, facingRotation + pose.yaw, attack.piece === 'n' ? 0 : pose.roll);
+      group.scale.set(motion.scaleXZ, motion.scaleY, motion.scaleXZ);
+      applyGroupOpacity(group, motion.opacity);
     }
-    if (elapsed >= PIECE_DEFEAT_DURATION && !completedRef.current) {
-      completedRef.current = true; onComplete(id);
+    if (burstRef.current) {
+      const age = elapsed - CAPTURE_IMPACT;
+      burstRef.current.visible = age >= 0 && age < .32;
+      const growth = 1 + Math.max(0, age - .14) * 4;
+      burstRef.current.scale.setScalar(growth);
+      applyGroupOpacity(burstRef.current, 1 - THREE.MathUtils.smoothstep(age, .14, .32));
     }
+    if (elapsed >= CAPTURE_CLEAR && !completedRef.current) { completedRef.current = true; onComplete(id); }
   });
-  return <group ref={groupRef} position={position} rotation={[0, facingRotation, 0]} renderOrder={14}>
-    <PieceBody type={type} pieceColor={pieceColor} accentColor={accentColor} defeatClock={defeatClock}/>
-  </group>;
+  return <>
+    <group ref={groupRef} position={position} rotation={[0, facingRotation, 0]}>
+      <PieceBody type={type} pieceColor={pieceColor} accentColor={accentColor} defeatClock={defeatClock}/>
+    </group>
+    <group ref={burstRef} visible={false} position={[position[0], position[1] + (attack.piece === 'n' ? attack.victimHeight : .95), position[2]]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]}><torusGeometry args={[.42, .024, 6, 32]}/><meshBasicMaterial color="#fff3ae" transparent depthWrite={false}/></mesh>
+      {Array.from({ length: 8 }, (_, i) => {
+        const a = i * Math.PI / 4;
+        return <mesh key={i} position={[Math.cos(a) * .48, Math.sin(a) * .36, .12]} rotation={[0, 0, a]}><boxGeometry args={[.19, .045, .045]}/><meshBasicMaterial color={i % 2 ? '#ffffff' : '#ffcd48'} transparent depthWrite={false}/></mesh>;
+      })}
+    </group>
+  </>;
 }
 
 function KingDangerMarker({ square, sceneTheme }: { square: string; sceneTheme: ArenaSceneTheme }) {
@@ -653,7 +662,9 @@ function Scene({
   const [captureGhosts, setCaptureGhosts] = useState<CaptureGhost[]>([]);
   const [hoveredSquare, setHoveredSquare] = useState<string | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
-  const { camera, size } = useThree();
+  const { camera, size, clock } = useThree();
+  const captureEpoch = useMemo(() => ({ id: moveFeedback?.id, startedAt: clock.elapsedTime }), [clock, moveFeedback?.id]);
+  const attack = useMemo<CaptureAnimation | undefined>(() => moveFeedback?.captured ? { startedAt: captureEpoch.startedAt, piece: moveFeedback.piece, victimHeight: COURT_HEIGHTS[moveFeedback.captured as CourtRole] } : undefined, [captureEpoch, moveFeedback]);
   const reducedMotion = useReducedMotion();
   useEffect(() => { if (reducedMotion) { setCaptureGhosts([]); } }, [reducedMotion]);
 
@@ -693,7 +704,8 @@ function Scene({
   }, [impactSignal]);
 
   useEffect(() => {
-    if (reducedMotion || !moveFeedback?.captured) return;
+    if (!moveFeedback) { setCaptureGhosts([]); return; }
+    if (reducedMotion || !moveFeedback.captured || !attack) return;
 
     const capturedType = moveFeedback.captured;
     const capturedColor = moveFeedback.color === 'w' ? 'b' : 'w';
@@ -706,13 +718,14 @@ function Scene({
       ...currentGhosts.filter((ghost) => ghost.id !== moveFeedback.id),
       {
         id: moveFeedback.id,
+        attack,
         color: capturedColor,
         type: capturedType,
         position: capturePosition,
         direction: [directionX / directionLength, directionZ / directionLength],
       },
     ]);
-  }, [moveFeedback, reducedMotion]);
+  }, [moveFeedback, reducedMotion, attack]);
 
   useEffect(() => {
     if (dragState) return;
@@ -728,9 +741,12 @@ function Scene({
     if (controlsRef.current) controlsRef.current.enabled = !showcase && !viewLocked;
   }, [showcase, viewLocked]);
 
+  const captureBusy = useCallback(() => !reducedMotion && Boolean(attack && clock.elapsedTime - attack.startedAt < CAPTURE_DURATION), [attack, clock, reducedMotion]);
+  const handleSquareClick = useCallback((square: ChessSquare) => { if (!captureBusy()) onSquareClick(square); }, [captureBusy, onSquareClick]);
+
   const handlePieceDragStart = useCallback((square: ChessSquare, point: THREE.Vector3) => {
     pauseCameraGesture();
-    if (!onPieceDrop) return;
+    if (!onPieceDrop || captureBusy()) return;
     const targetSquare = pointToBoardSquare(point);
     setHoveredSquare(targetSquare);
     setDragState({
@@ -738,10 +754,10 @@ function Scene({
       position: clampDragPosition(point),
       targetSquare,
     });
-  }, [onPieceDrop, pauseCameraGesture]);
+  }, [onPieceDrop, pauseCameraGesture, captureBusy]);
 
   const handlePieceDragMove = useCallback((square: ChessSquare, point: THREE.Vector3) => {
-    if (!onPieceDrop) return;
+    if (!onPieceDrop || captureBusy()) return;
     const targetSquare = pointToBoardSquare(point);
     setHoveredSquare(targetSquare);
     setDragState((currentDrag) => {
@@ -752,7 +768,7 @@ function Scene({
         targetSquare,
       };
     });
-  }, [onPieceDrop]);
+  }, [onPieceDrop, captureBusy]);
 
   const handlePieceDragEnd = useCallback((square: ChessSquare, point: THREE.Vector3) => {
     resumeCameraGesture();
@@ -761,9 +777,9 @@ function Scene({
     setHoveredSquare(null);
     document.body.style.cursor = 'default';
 
-    if (!onPieceDrop) return;
+    if (!onPieceDrop || captureBusy()) return;
     void onPieceDrop(square, targetSquare);
-  }, [dragState?.targetSquare, onPieceDrop, resumeCameraGesture]);
+  }, [dragState?.targetSquare, onPieceDrop, resumeCameraGesture, captureBusy]);
 
   const handlePieceDragCancel = useCallback(() => {
     resumeCameraGesture();
@@ -816,7 +832,7 @@ function Scene({
       <group ref={boardGroupRef} position={[0, BOARD_RAISE, 0]}>
         <BoardCoordinates flipped={flipped} sceneTheme={sceneTheme} />
         <BoardSquares
-          onSquareClick={onSquareClick}
+          onSquareClick={handleSquareClick}
           selectedSquare={selectedSquare}
           legalMoves={legalMoves}
           draggableSquares={pieces.map((piece) => piece.square)}
@@ -853,6 +869,8 @@ function Scene({
                     from: squareToPos(moveFeedback.from),
                     tone: moveFeedback.tone,
                     piece: moveFeedback.piece,
+                    attack,
+                    captureTarget: moveFeedback.captured ? squareToPos(moveFeedback.capturedSquare ?? moveFeedback.to) : undefined,
                   }
                 : moveFeedback?.san.startsWith('O-O') && p.type === 'r' && p.color === moveFeedback.color && p.square === `${moveFeedback.san.startsWith('O-O-O') ? 'd' : 'f'}${moveFeedback.to[1]}`
                   ? { id: `${moveFeedback.id}-rook`, from: squareToPos(`${moveFeedback.san.startsWith('O-O-O') ? 'a' : 'h'}${moveFeedback.to[1]}`), tone: 'move', piece: 'r' }
@@ -864,7 +882,7 @@ function Scene({
             dragPosition={dragState?.square === p.square ? dragState.position : null}
             isKingInDanger={p.type === 'k' && moveFeedback?.targetKingSquare === p.square}
             isCheckmatedKing={p.type === 'k' && moveFeedback?.targetKingSquare === p.square && moveFeedback.isCheckmate}
-            onSelect={onSquareClick}
+            onSelect={handleSquareClick}
             onHover={setHoveredSquare}
             onPress={pauseCameraGesture}
             onDragStart={handlePieceDragStart}
@@ -882,6 +900,7 @@ function Scene({
             color={ghost.color}
             position={ghost.position}
             direction={ghost.direction}
+            attack={ghost.attack}
             facingRotation={getPieceFacingRotation(ghost.color)}
             sceneTheme={sceneTheme}
             onComplete={(id) => {

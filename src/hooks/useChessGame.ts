@@ -1,3 +1,4 @@
+import { CAPTURE_DURATION } from '@/lib/captureMotion';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Chess, Square, PieceSymbol } from 'chess.js';
 import { getBestMove } from '@/lib/chessCPU';
@@ -215,7 +216,7 @@ export function useChessGame(mode: GameMode, difficulty: Difficulty) {
     cpuMoveTimerRef.current = setTimeout(() => {
       cpuMoveTimerRef.current = null;
       makeCpuMove();
-    }, randomCpuDelay());
+    }, game.history({ verbose: true }).at(-1)?.captured ? CAPTURE_DURATION * 1000 + 100 : randomCpuDelay());
   }, [game, makeCpuMove, mode, resignedBy]);
 
   const makePlayerMove = useCallback((from: Square, to: Square, promotion: PromotionPiece = 'q') => {

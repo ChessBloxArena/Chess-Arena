@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Check, CheckCheck, Coins, Crown, Gem, ShieldChec
 import ChessScene from '@/components/ChessScene';
 import { buildMoveFeedback, type MoveFeedback } from '@/lib/moveFeedback';
 import { INITIAL_PREVIEW, previewWalletReducer } from '@/lib/wagerPreview';
+import { CAPTURE_DURATION } from '@/lib/captureMotion';
 import { PUSH_DURATION } from '@/lib/pushMotion';
 import { playMoveSound, playCaptureSound, playGameOverSound } from '@/lib/sounds';
 import '@/wager-preview.css';
@@ -46,7 +47,7 @@ export default function WagerPreview() {
         if (game.isCheckmate()) { dispatch({type:'win'}); setBusy(false); playGameOverSound(); return; }
         applyMove(OPENING[game.history().length]);
         timer.current = setTimeout(() => setBusy(false), PUSH_DURATION * 1000 + 100);
-      }, PUSH_DURATION * 1000 + 600);
+      }, (move.captured ? CAPTURE_DURATION : PUSH_DURATION) * 1000 + 600);
     } else { setSelected(game.get(square)?.color === 'w' ? square : null); setNote(''); }
   }
   function authorize() {
