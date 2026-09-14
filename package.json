@@ -39,7 +39,7 @@
     "test:deploy": "node --test scripts/deployment-smoke.test.mjs"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.9.1",
     "@metamask/connect-solana": "2.1.0",
     "@noble/hashes": "1.8.0",
     "@radix-ui/react-accordion": "^1.2.11",
