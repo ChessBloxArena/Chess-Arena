@@ -4,10 +4,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
-    # Public is a release mirror; proposals belong in the private repository.
-    open-pull-requests-limit: 0
+    # Private development settings. Keep the public release mirror's limits at zero.
+    open-pull-requests-limit: 5
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 5
