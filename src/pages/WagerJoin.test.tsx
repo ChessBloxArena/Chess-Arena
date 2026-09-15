@@ -39,7 +39,7 @@ describe('wager invitation screen', () => {
   });
   it.each(['-1', '340000000000000001'])('blocks invalid or over-limit invite stakes: %s', (value) => {
     open(value);
-    expect(screen.getByRole('button')).toBeDisabled();
+    expect(screen.getByRole('button', { name: value === '-1' ? 'Invite unavailable' : /Deposit .* ETH & join/i })).toBeDisabled();
     expect(mocks.join).not.toHaveBeenCalled();
   });
 });

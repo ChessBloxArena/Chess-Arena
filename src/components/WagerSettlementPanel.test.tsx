@@ -83,6 +83,9 @@ describe("WagerSettlementPanel Robinhood prize flow", () => {
     expect(await screen.findByRole('button', {name:/Get RBLX quote/})).toBeInTheDocument();
     expect(screen.queryByRole('button', {name:/claim eth/i})).not.toBeInTheDocument();
     expect(actions.onClaimEth).not.toHaveBeenCalled();
+    expect(screen.getByRole('status')).toHaveTextContent('Funds claimed');
+    expect(screen.queryByText('PRIZE READY')).not.toBeInTheDocument();
+    expect(screen.getByText('Your ETH claim is confirmed. View the receipt below.')).toBeInTheDocument();
   });
 
   it("disables confirmation when a quote has expired", async () => {
@@ -93,7 +96,7 @@ describe("WagerSettlementPanel Robinhood prize flow", () => {
     acceptSwapTerms();
     fireEvent.click(screen.getByRole('button', {name:/Get RBLX quote/}));
     expect(await screen.findByRole('button', {name:/Confirm ETH → RBLX swap/})).toBeDisabled();
-    expect(screen.getByRole('status')).toHaveTextContent('Quote expired');
+    expect(screen.getByRole('status', { name: 'Quote status' })).toHaveTextContent('Quote expired');
     expect(actions.onConvertToRblx).not.toHaveBeenCalled();
   });
 

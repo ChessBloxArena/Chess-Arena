@@ -1,3 +1,4 @@
+import LanguageToggle from '@/components/LanguageToggle';
 import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { useAutomaticPayoutReview } from "@/components/AutomaticPayoutReview";
 import { useRef, useState } from 'react';
@@ -50,11 +51,11 @@ export default function WagerJoin() {
     }
   };
 
-  return <main className="min-h-screen bg-background px-5 py-8 text-foreground">
-    <div className="mx-auto max-w-xl space-y-6">
-      <nav className="flex justify-between gap-4"><Link to="/" className="text-primary">{translateText("← ChessBlox")}</Link><Link to="/funds" className="text-primary">{translateText("My funds")}</Link></nav>
+  return <main className="account-page">
+    <div className="account-shell account-shell-narrow">
+      <nav className="account-nav"><Link to="/" className="text-primary">{translateText("← ChessBlox")}</Link><Link to="/funds" className="text-primary">{translateText("My funds")}</Link><LanguageToggle /></nav>
       <header><h1 className="text-3xl font-bold">{translateText("You've been challenged.")}</h1><p className="mt-2 text-muted-foreground">{translateText("Join an ETH wager on Robinhood Chain.")}</p></header>
-      <section className="rounded-xl border border-primary/30 bg-card p-5 space-y-4">
+      <section className="account-card account-invite">
         {localize(validInvite && <><p>{translateText("Your stake ")}<strong className="float-right">{localize(formatEther(stake!))}{translateText(" ETH")}</strong></p><p>{translateText("Winner's pot ")}<strong className="float-right">{localize(formatEther(stake! * 2n))}{translateText(" ETH")}</strong></p><p className="text-sm text-muted-foreground">{translateText("Payout terms are checked before your deposit. Draws return each player's stake. Deposit network fees are separate.")}</p></>)}
         <p className="text-sm text-muted-foreground">{localize(wallet.address ? `${wallet.shortAddress} · ${wallet.balanceWei === null ? 'Checking balance…' : `${formatEther(wallet.balanceWei)} ETH`}` : 'Connect an EVM wallet to join.')}</p>
         {localize(!wallet.address && validInvite ? <button className="retro-btn w-full" disabled={wallet.connecting} onClick={() => void wallet.connect()}>{localize(wallet.connecting ? 'Connecting…' : 'Connect wallet')}</button>

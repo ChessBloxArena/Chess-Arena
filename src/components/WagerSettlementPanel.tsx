@@ -133,6 +133,7 @@ export default function WagerSettlementPanel({ summary, onRefund, onClaimEth, on
   const automatic = summary.payoutMode === "automatic_rblx";
   const automaticallyPaid = summary.automaticPayoutStatus === "paid_rblx" || summary.automaticPayoutStatus === "paid_eth";
   const fallbackReady = automatic && !!summary.ethFallbackAt && Date.parse(summary.ethFallbackAt) <= now && !automaticallyPaid;
+  const hasClaimReceipt = !!claimHash && (!automatic || isDraw || canClaimRefund || fallbackReady);
   const canClaim = (!automatic || isDraw || canClaimRefund || fallbackReady) && robinhood && ((summary.state === "settled" && (didWin || isDraw)) || canClaimRefund) && !claimHash;
   const canConvertToRblx = !automatic && rblxConversionEnabled() && robinhood && summary.state === "settled" && didWin && !isDraw && !!claimHash && !swapHash;
   const canRefund = summary.refundAvailable && summary.state !== "settled";
@@ -140,26 +141,30 @@ export default function WagerSettlementPanel({ summary, onRefund, onClaimEth, on
   const canRequestQuote = busyAction === null && eligibleForRblx && uniswapTermsAccepted;
 
   return (
-    <div className="mt-5 space-y-3 text-left">
-      <div className="border border-primary/40 bg-background/50 p-3">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-[8px] font-retro text-primary">{localize(wagerSettlementStatusCopy(summary, playerColor))}</p>
-          <p className="text-[7px] font-retro text-muted-foreground">{localize(summary.stakeLabel)}</p>
+    <div className="settlement-panel">
+      <div className="settlement-summary" data-claimed={hasClaimReceipt}>
+        <div className="settlement-summary-heading">
+          <p className="settlement-status" role="status">{localize(hasClaimReceipt ? "Funds claimed" : wagerSettlementStatusCopy(summary, playerColor))}</p>
+          <p className="settlement-stake"><span>{translateText("Your stake")}</span><strong>{localize(summary.stakeLabel)}</strong></p>
         </div>
-        <p className="mt-2 text-[7px] font-retro text-foreground">{localize(wagerSettlementPayoutCopy(summary, playerColor))}</p>
-        <p className="mt-2 text-[6px] font-retro text-muted-foreground">{translateText("RESULT: ")}{localize(summary.resultType.toUpperCase())}</p>
-        {localize(summary.contestId && <p className="mt-1 break-all text-[6px] font-retro text-muted-foreground">{translateText("CONTEST: ")}{localize(summary.contestId)}</p>)}
+        <p className="settlement-payout">{localize(hasClaimReceipt ? "Your ETH claim is confirmed. View the receipt below." : wagerSettlementPayoutCopy(summary, playerColor))}</p>
+        <p className="settlement-result">{translateText("RESULT: ")}{localize(summary.resultType.toUpperCase())}</p>
+
       </div>
 
-      <WagerTransactionLinks links={summary.transactionLinks} />
+      <details className="settlement-details">
+        <summary>{translateText("Transaction details")}</summary>
+        <WagerTransactionLinks links={summary.transactionLinks} />
+        {summary.contestId && <p className="settlement-contest">{translateText("CONTEST: ")}<code>{summary.contestId}</code></p>}
+      </details>
       {localize(summary.automaticPayoutSignature && <a className="block text-sm underline text-primary" target="_blank" rel="noreferrer" href={robinhoodTransactionUrl(summary.automaticPayoutSignature)}>{translateText("View automatic payout transaction ↗")}</a>)}
       {localize(automatic && didWin && !automaticallyPaid && summary.ethFallbackAt && <p className="text-sm text-muted-foreground">{translateText("ETH recovery available after ")}{localize(new Date(summary.ethFallbackAt).toLocaleTimeString(getLanguage()))}{translateText(". Open My funds to check the latest on-chain status.")}</p>)}
       {localize(claimHash && (
-        <a className="block text-center text-[6px] font-retro text-primary underline" href={robinhoodTransactionUrl(claimHash)} target="_blank" rel="noreferrer">{translateText("ETH CLAIM TX: ")}{localize(claimHash.slice(0, 12))}…
+        <a className="settlement-receipt" href={robinhoodTransactionUrl(claimHash)} target="_blank" rel="noreferrer">{translateText("ETH CLAIM TX: ")}{localize(claimHash.slice(0, 12))}…
         </a>
       ))}
       {localize(swapHash && (
-        <a className="block text-center text-[6px] font-retro text-retro-gold underline" href={robinhoodTransactionUrl(swapHash)} target="_blank" rel="noreferrer">{translateText("RBLX SWAP TX: ")}{localize(swapHash.slice(0, 12))}…
+        <a className="settlement-receipt" href={robinhoodTransactionUrl(swapHash)} target="_blank" rel="noreferrer">{translateText("RBLX SWAP TX: ")}{localize(swapHash.slice(0, 12))}…
         </a>
       ))}
 
@@ -179,17 +184,17 @@ export default function WagerSettlementPanel({ summary, onRefund, onClaimEth, on
             </dl>
             <p className="break-all text-xs text-muted-foreground">{translateText("Robinhood Chain · Receive in ")}{localize(quote.walletAddress)}</p>
             <p className="text-xs text-muted-foreground">{translateText("The network fee is additional. Your wallet shows the final fee before you approve.")}</p>
-            <p role="status">{localize(quoteExpired ? "Quote expired. Refresh it before swapping." : `Quote expires in ${Math.max(0, Math.ceil((Date.parse(quote.expiresAt) - now) / 1000))} seconds.`)}</p>
+            <p role="status" aria-label={translateText("Quote status")}>{localize(quoteExpired ? "Quote expired. Refresh it before swapping." : `Quote expires in ${Math.max(0, Math.ceil((Date.parse(quote.expiresAt) - now) / 1000))} seconds.`)}</p>
             <button className="retro-btn retro-btn-small retro-btn-gold w-full" disabled={!canRequestQuote || quoteExpired} onClick={() => void runAction("swap", () => onConvertToRblx(claimHash!, quote))}><Coins size={14} /> {localize(busyAction === "swap" ? "Confirm in wallet…" : "Confirm ETH → RBLX swap")}</button>
           </div>)}
           <p className="text-xs text-muted-foreground">{translateText("Powered by Uniswap Labs. Requesting a quote does not send a swap. You can keep your ETH at any time.")}</p>
         </section>
       ))}
 
-      {localize(claimHash && !swapHash && didWin && summary.state === "settled" && <p className="text-center text-[6px] font-retro text-primary">{localize(rblxConversionEnabled() ? "ETH CLAIMED. KEEP IT OR CONVERT IT TO RBLX." : "ETH CLAIM CONFIRMED.")}</p>)}
-      {localize(swapHash && <p className="text-center text-[6px] font-retro text-retro-gold">{translateText("RBLX SENT TO YOUR WALLET.")}</p>)}
+      {localize(claimHash && !swapHash && didWin && summary.state === "settled" && <p className="settlement-confirmation">{localize(rblxConversionEnabled() ? "ETH CLAIMED. KEEP IT OR CONVERT IT TO RBLX." : "ETH CLAIM CONFIRMED.")}</p>)}
+      {localize(swapHash && <p className="settlement-confirmation">{translateText("RBLX SENT TO YOUR WALLET.")}</p>)}
 
-      <div className="flex flex-wrap justify-center gap-2">
+      <div className="settlement-actions">
         {localize(canRefund && <button className="retro-btn retro-btn-small" disabled={busyAction !== null} onClick={() => runAction("refund", onRefund)}><RefreshCcw size={12} /> {localize(busyAction === "refund" ? "REFUNDING" : "REFUND")}</button>)}
         {localize(canClaim && <button className="retro-btn retro-btn-small" disabled={busyAction !== null} onClick={() => runAction("claim", onClaimEth)}><Wallet size={12} /> {localize(busyAction === "claim" ? "CLAIMING" : canClaimRefund ? "CLAIM REFUND" : "CLAIM ETH")}</button>)}
       </div>

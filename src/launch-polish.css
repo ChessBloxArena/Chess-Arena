@@ -1,0 +1,85 @@
+/* Launch UI: consistent surfaces, readable receipts, and compact-screen layouts. */
+.account-page {
+  min-height: 100dvh;
+  padding: clamp(20px, 4vw, 56px) 20px 64px;
+  color: #293d50;
+  background: radial-gradient(ellipse at top right, #e6eef1 0%, transparent 55%), #f6f5ef;
+  font: 15px/1.6 'Nunito', sans-serif;
+}
+.account-shell { max-width: 820px; margin: 0 auto; display: grid; gap: 24px; }
+.account-shell-narrow { max-width: 640px; }
+.account-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; min-height: 44px; }
+.account-nav .language-toggle { margin-left: auto; }
+.account-nav > a { font-weight: 800; text-decoration: none; padding-block: 8px; }
+.account-shell > header { padding: 8px 0; }
+.account-shell h1 { font-family: 'Lilita One', sans-serif; font-size: clamp(30px, 4vw, 42px); font-weight: 400; line-height: 1.15; letter-spacing: -.025em; }
+.account-shell header p { max-width: 58ch; line-height: 1.65; color: #60717b; }
+.account-card { display: grid; gap: 16px; padding: clamp(20px, 3vw, 30px); background: #fffdf6; border: 1px solid #e0e4dc; border-radius: 20px; box-shadow: 0 8px 28px #354d6508; min-width: 0; }
+.account-card p { margin: 0; overflow-wrap: anywhere; }
+.account-wallet > p:first-child { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.account-card .retro-btn { justify-self: start; min-height: 46px; padding: 12px 20px; font-size: 13px; border-radius: 11px; }
+.account-invite > div { padding-bottom: 14px; border-bottom: 1px solid #e8e8df; }
+.account-invite strong { font-size: 20px; color: #293d50; font-variant-numeric: tabular-nums; }
+.account-invite > .retro-btn { justify-self: stretch; }
+.account-card-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; }
+.account-card-heading h2 { font-size: 18px; }
+.account-card-heading > span { font-weight: 800; white-space: nowrap; }
+.account-page [role=alert] { font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.account-page a:focus-visible, .settlement-panel :is(a,summary,button):focus-visible { outline: 3px solid #648597; outline-offset: 4px; border-radius: 4px; }
+
+.game-over-overlay { padding: clamp(12px, 3vw, 28px); }
+.game-over-panel { width: min(100%, 540px); max-width: 540px; max-height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: clamp(20px, 3vw, 32px); border-width: 1px; border-radius: 22px; box-shadow: 0 20px 70px #203b5a30; }
+.game-over-panel > p:first-of-type { font-family: 'Lilita One', sans-serif; font-size: clamp(25px, 4vw, 32px); line-height: 1.2; margin-bottom: 10px; letter-spacing: -.015em; text-shadow: none; }
+.game-over-panel > p:nth-of-type(2) { font: 700 14px/1.6 'Nunito', sans-serif; margin-bottom: 20px; color: #5d707b; }
+.game-over-actions { margin-top: 22px; gap: 12px; flex-wrap: wrap; }
+.game-over-actions .retro-btn { min-height: 44px; border-radius: 10px; font-size: 13px; }
+.settlement-panel { display: grid; gap: 16px; margin-top: 20px; text-align: left; font: 14px/1.6 'Nunito', sans-serif; }
+.settlement-summary { padding: 20px; border: 1px solid #dbe3d7; background: #eff3e9; border-radius: 15px; }
+.settlement-summary[data-claimed=true] { background: #eaf3ec; border-color: #cfe3d4; }
+.settlement-summary-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.settlement-status { font-size: 12px; font-weight: 900; color: #36705b; letter-spacing: .035em; text-transform: uppercase; margin: 0; }
+.settlement-stake { display: grid; gap: 2px; text-align: right; flex-shrink: 0; margin: 0; }
+.settlement-stake span { font-size: 11px; color: #62746d; }
+.settlement-stake strong { font-size: 15px; font-variant-numeric: tabular-nums; color: #344c43; }
+.settlement-payout { font-size: 15px; font-weight: 700; line-height: 1.65; margin: 16px 0 0; color: #314c42; }
+.settlement-result { margin: 12px 0 0; font-size: 11px; letter-spacing: .025em; color: #62746d; }
+.settlement-details { border: 1px solid #e2e6df; border-radius: 12px; padding: 0 14px; }
+.settlement-details > summary { padding: 12px 0; cursor: pointer; font-size: 13px; font-weight: 800; color: #536d79; }
+.settlement-contest { padding: 10px 0 14px; font-size: 11px; color: #687c84; overflow-wrap: anywhere; }
+.settlement-contest code { font-size: 11px; }
+.transaction-links { display: grid; gap: 5px; font: 13px/1.5 'Nunito', sans-serif; }
+.transaction-link { display: flex; align-items: center; gap: 8px; padding: 8px 0; color: #426e65; }
+.transaction-link svg { flex-shrink: 0; }
+.transaction-link > span { min-width: 0; }
+.transaction-link code { margin-left: auto; color: #647b82; font-size: 11px; white-space: nowrap; }
+.transaction-link:hover, .settlement-receipt:hover { text-decoration: underline; text-underline-offset: 3px; }
+.settlement-receipt { font-size: 13px; color: #36705b; overflow-wrap: anywhere; }
+.settlement-confirmation { font-size: 12px; font-weight: 800; color: #36705b; line-height: 1.6; text-align: center; }
+.settlement-actions { display: flex; flex-wrap: wrap; justify-content: stretch; gap: 10px; }
+.settlement-actions:empty { display: none; }
+.settlement-actions .retro-btn { flex: 1; justify-content: center; min-height: 46px; font-size: 13px; border-radius: 10px; }
+.sky-dropdown { border: 1px solid #e2e5dd; border-radius: 14px; padding: 6px; box-shadow: 0 12px 36px #253e5824; }
+.sky-dropdown [role=menuitem] { min-height: 42px; padding: 10px 12px; font: 700 14px/1.4 'Nunito', sans-serif; border-radius: 8px; gap: 6px; }
+.sky-dropdown [role=menuitem]:focus { background: #edf1e7; color: #293d50; }
+.sky-dropdown [role=menuitem][data-disabled] { opacity: .45; }
+.sky-play { white-space: normal; text-align: center; line-height: 1.35; }
+.sky-world-header { flex-wrap: wrap; justify-content: flex-end; }
+.sky-wallet { max-width: 240px; overflow-wrap: anywhere; }
+.game-topbar-actions .retro-btn { touch-action: manipulation; }
+
+@media (max-width: 480px) {
+  .account-page { padding: 16px 14px 40px; }
+  .account-shell { gap: 18px; }
+  .account-nav { gap: 8px 14px; }
+  .account-nav .language-toggle { font-size: 11px; }
+  .account-card { border-radius: 16px; padding: 18px; }
+  .account-card .retro-btn { justify-self: stretch; }
+  .game-over-overlay { padding: 10px; }
+  .game-over-panel { padding: 20px 16px; border-radius: 18px; }
+  .settlement-summary { padding: 15px; }
+  .settlement-summary-heading { gap: 10px; }
+  .settlement-payout { font-size: 14px; }
+  .game-over-actions .retro-btn { flex: 1; padding: 11px 12px; }
+  .game-topbar-actions .retro-btn-small { min-width: 42px; min-height: 42px; }
+  .sky-world-header { gap: 8px; right: 14px; left: 14px; }
+}

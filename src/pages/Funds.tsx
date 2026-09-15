@@ -1,3 +1,4 @@
+import LanguageToggle from '@/components/LanguageToggle';
 import { translateText, localize, useLanguage, getLanguage } from '@/lib/i18n';
 import { automaticRblxAbi } from "../../supabase/functions/_shared/automaticRblx.mjs";
 import { useEffect, useRef, useState } from "react";
@@ -112,18 +113,18 @@ export default function Funds() {
     }
   };
 
-  return <main className="min-h-screen bg-background px-5 py-8 text-foreground">
-    <div className="mx-auto max-w-3xl space-y-6">
-      <Link to="/" className="text-primary">{translateText("← ChessBlox")}</Link>
+  return <main className="account-page">
+    <div className="account-shell">
+      <nav className="account-nav"><Link to="/" className="account-home">{translateText("← ChessBlox")}</Link><LanguageToggle /></nav>
       <header><h1 className="text-3xl font-bold">{translateText("My funds & matches")}</h1><p className="mt-2 text-muted-foreground">{translateText("Recover a match, collect a prize, or refund a waiting wager.")}</p></header>
-      <section className="rounded-xl border border-primary/30 bg-card p-5 space-y-3">
+      <section className="account-card account-wallet">
         <p>{localize(wallet.address ? wallet.shortAddress : "Connect the wallet you used to play.")}</p>
         <p className="text-sm text-muted-foreground">{translateText("Robinhood Chain · ")}{localize(wallet.balanceWei === null ? "—" : formatEther(wallet.balanceWei))}{translateText(" ETH")}</p>
         {localize(!wallet.address ? <button className="retro-btn" disabled={wallet.connecting} onClick={() => void wallet.connect()}>{translateText("Connect wallet")}</button>
           : <button className="retro-btn" disabled={busy} onClick={() => void run(() => load())}>{localize(busy ? "Checking…" : "Find my matches")}</button>)}
         <p className="text-xs text-muted-foreground">{translateText("Finding matches asks for a signature to prove wallet ownership. Claims and refunds require a separate transaction and network fee.")}</p>
       </section>
-      {localize(pending && <section className="rounded-xl border border-primary/40 p-5 space-y-3">
+      {localize(pending && <section className="account-card">
         <h2 className="font-bold">{translateText("Unfinished payment saved")}</h2><p>{localize(formatEther(BigInt(pending.prepared.stakeLamports)))}{translateText(" ETH · ")}{localize(pending.prepared.gameId.slice(0, 8))}</p>
         <button className="retro-btn" disabled={busy || !wallet.address} onClick={() => void run(async () => {
           if (!wallet.address) return;
@@ -147,8 +148,8 @@ export default function Funds() {
         const canCancel = contest?.state === 1 && creator;
         const canExpire = contest?.state === 2 && participant && contest.expiresAt <= BigInt(Math.floor(Date.now() / 1000));
         const title = contest?.payout?.asset === 1 ? "RBLX prize paid to wallet" : contest?.payout?.asset === 2 ? "Full ETH fallback paid" : contest?.payout && contest.state === 3 && !fallbackReady ? "Automatic RBLX payout pending" : !contest ? "Checking chain…" : contest.state === 0 ? "No deposit found" : contest.state === 1 ? "Waiting for opponent" : contest.state === 2 ? "Match funded" : contest.state === 6 ? "Funds already claimed or returned" : claimable ? "Funds ready to claim" : "Escrow settled";
-        return <section key={game.gameId} className="rounded-xl border border-border bg-card p-5 space-y-3">
-          <div className="flex justify-between gap-4"><h2 className="font-bold">{localize(title)}</h2><span>{localize(formatEther(BigInt(game.stakeWei)))}{translateText(" ETH stake")}</span></div>
+        return <section key={game.gameId} className="account-card">
+          <div className="account-card-heading"><h2 className="font-bold">{localize(title)}</h2><span>{localize(formatEther(BigInt(game.stakeWei)))}{translateText(" ETH stake")}</span></div>
           {localize(contest?.payout && contest.state === 3 && <p className="text-sm text-muted-foreground">{translateText("The service is processing your prize. ETH recovery unlocks ")}{localize(new Date((Number(contest.payout.settledAt) + 900) * 1000).toLocaleString(getLanguage()))}.</p>)}
           {localize(game.payoutSignature && <a className="text-primary underline" target="_blank" rel="noreferrer" href={robinhoodTransactionUrl(game.payoutSignature)}>{translateText("View payout receipt ↗")}</a>)}
           <p className="text-sm text-muted-foreground">{translateText("Match ")}{localize(game.gameId.slice(0, 8))} · {localize(new Date(game.createdAt).toLocaleString(getLanguage()))}</p>

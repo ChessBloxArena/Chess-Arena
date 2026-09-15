@@ -794,5 +794,9 @@
   "Not enough {0} (CA). Buy or hold at least {1} {2} (CA) tokens to wager in SOL.": "{0}（CA）余额不足。使用 SOL 下注需购买或持有至少 {1} {2}（CA）代币。",
   "White's turn": "白方走棋",
   "Black's turn": "黑方走棋",
-  "LAST: {0}": "上一步：{0}"
+  "LAST: {0}": "上一步：{0}",
+  "Funds claimed": "资金已领取",
+  "Your ETH claim is confirmed. View the receipt below.": "ETH 领取已确认。您可以在下方查看交易凭证。",
+  "Transaction details": "交易详情",
+  "Quote status": "报价状态"
 }
