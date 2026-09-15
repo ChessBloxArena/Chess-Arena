@@ -1,3 +1,4 @@
+import { walletErrorMessage } from "@/lib/walletError";
 import { translateText, localize, useLanguage, getLanguage } from '@/lib/i18n';
 import { useEffect, useRef, useState } from "react";
 import { Coins, RefreshCcw, Wallet } from "lucide-react";
@@ -118,7 +119,7 @@ export default function WagerSettlementPanel({ summary, onRefund, onClaimEth, on
         } catch { /* A storage failure must not turn a successful transaction into a failure. */ }
       }
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Action failed");
+      setActionError(walletErrorMessage(err));
     } finally {
       actionInFlight.current = false;
       setBusyAction(null);

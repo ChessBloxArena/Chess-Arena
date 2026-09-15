@@ -798,5 +798,7 @@
   "Funds claimed": "资金已领取",
   "Your ETH claim is confirmed. View the receipt below.": "ETH 领取已确认。您可以在下方查看交易凭证。",
   "Transaction details": "交易详情",
-  "Quote status": "报价状态"
+  "Quote status": "报价状态",
+  "The network is temporarily unavailable. Refresh your balance. If you already sent a transaction, check My funds before trying again.": "网络暂时不可用，请刷新余额。如果您已发送交易，请先查看“我的资金”，再尝试下一步。",
+  "Unable to complete the request. Please try again.": "无法完成请求，请重试。"
 }

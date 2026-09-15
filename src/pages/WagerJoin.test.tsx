@@ -37,6 +37,16 @@ describe('wager invitation screen', () => {
     await waitFor(() => expect(mocks.join).toHaveBeenCalledWith(gameId, expect.objectContaining({ stakeWei: BigInt(stake) })));
     expect(await screen.findByText('Match opened')).toBeInTheDocument();
   });
+  it('offers a read-only balance refresh after a network failure', () => {
+    const refreshBalance = vi.fn();
+    mocks.wallet.mockReturnValue({ ...mocks.wallet(), balanceWei: null, error: 'HTTP request failed. URL: https://rpc.example Request body: {}', refreshing: false, refreshBalance });
+    open();
+    expect(screen.getByRole('alert')).toHaveTextContent('The network is temporarily unavailable.');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('Request body');
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh ETH balance' }));
+    expect(refreshBalance).toHaveBeenCalledOnce();
+    expect(mocks.join).not.toHaveBeenCalled();
+  });
   it.each(['-1', '340000000000000001'])('blocks invalid or over-limit invite stakes: %s', (value) => {
     open(value);
     expect(screen.getByRole('button', { name: value === '-1' ? 'Invite unavailable' : /Deposit .* ETH & join/i })).toBeDisabled();

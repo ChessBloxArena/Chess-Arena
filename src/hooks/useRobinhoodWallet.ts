@@ -1,3 +1,4 @@
+import { walletErrorMessage } from "@/lib/walletError";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   createPublicClient,
@@ -52,12 +53,6 @@ export interface RobinhoodWallet {
 
 const publicClient = createPublicClient({ chain: robinhoodChain, transport: http() });
 
-function friendlyWalletError(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error);
-  if (/rejected|denied|4001/i.test(message)) return "Wallet request rejected.";
-  if (/not found|undefined|ethereum/i.test(message)) return "Install an EVM wallet such as MetaMask or Rabby.";
-  return message;
-}
 
 export function useRobinhoodWallet(): RobinhoodWallet {
   const [address, setAddress] = useState<Address | null>(null);
@@ -95,10 +90,11 @@ export function useRobinhoodWallet(): RobinhoodWallet {
     setRefreshing(true);
     try {
       const balance = await publicClient.getBalance({ address });
+      setError(null);
       setBalanceWei(balance);
       setBalanceEth(Number(formatEther(balance)));
     } catch (refreshError) {
-      setError(friendlyWalletError(refreshError));
+      setError(walletErrorMessage(refreshError));
     } finally {
       setRefreshing(false);
     }
@@ -115,7 +111,7 @@ export function useRobinhoodWallet(): RobinhoodWallet {
       setAddress(nextAddress);
       return nextAddress;
     } catch (connectError) {
-      setError(friendlyWalletError(connectError));
+      setError(walletErrorMessage(connectError));
       return null;
     } finally {
       setConnecting(false);

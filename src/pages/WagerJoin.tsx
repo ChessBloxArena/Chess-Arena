@@ -1,3 +1,4 @@
+import { walletErrorMessage } from '@/lib/walletError';
 import LanguageToggle from '@/components/LanguageToggle';
 import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { useAutomaticPayoutReview } from "@/components/AutomaticPayoutReview";
@@ -61,9 +62,10 @@ export default function WagerJoin() {
         {localize(!wallet.address && validInvite ? <button className="retro-btn w-full" disabled={wallet.connecting} onClick={() => void wallet.connect()}>{localize(wallet.connecting ? 'Connecting…' : 'Connect wallet')}</button>
           : <button className="retro-btn retro-btn-gold w-full" disabled={busy || !!blocker} onClick={() => void join()}>{localize(busy ? 'Confirm in wallet…' : validInvite ? `Deposit ${formatEther(stake!)} ETH & join` : 'Invite unavailable')}</button>)}
         {localize(blocker && <p className="text-sm text-muted-foreground">{localize(blocker)}</p>)}
-        {localize((error || wallet.error) && <p role="alert" className="break-words text-sm text-destructive">{localize(error || wallet.error)}</p>)}
+        {localize((error || wallet.error) && <p role="alert" className="break-words text-sm text-destructive">{localize(walletErrorMessage(error || wallet.error))}</p>)}
         <p className="text-sm text-muted-foreground">{translateText("Joining asks for proof of wallet ownership, then a separate deposit. The match stake is checked before any payment is requested.")}</p>
       </section>
+      {wallet.error && wallet.address && <button className="retro-btn retro-btn-small" disabled={wallet.refreshing} onClick={() => void wallet.refreshBalance()}>{translateText("Refresh ETH balance")}</button>}
       <Link to="/funds" className="block text-primary underline">{translateText("Already paid? Recover your match or funds →")}</Link>
     </div>
   </main>;

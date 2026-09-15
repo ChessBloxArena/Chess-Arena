@@ -1,3 +1,4 @@
+import { walletErrorMessage } from '@/lib/walletError';
 import LanguageToggle from '@/components/LanguageToggle';
 import { translateText, localize, useLanguage, getLanguage } from '@/lib/i18n';
 import { automaticRblxAbi } from "../../supabase/functions/_shared/automaticRblx.mjs";
@@ -133,7 +134,8 @@ export default function Funds() {
         })}>{translateText("Continue saved payment")}</button>
         <p className="text-sm text-muted-foreground">{translateText("This resumes the saved match. If you already sent the transaction, it checks that payment.")}</p>
       </section>)}
-      {localize((error || wallet.error) && <p role="alert" className="rounded-lg border border-destructive p-4 break-words">{localize(error || wallet.error)}</p>)}
+      {localize((error || wallet.error) && <p role="alert" className="rounded-lg border border-destructive p-4 break-words">{localize(walletErrorMessage(error || wallet.error))}</p>)}
+      {wallet.error && wallet.address && <button className="retro-btn retro-btn-small" disabled={wallet.refreshing} onClick={() => void wallet.refreshBalance()}>{translateText("Refresh ETH balance")}</button>}
       {localize(receipt && <a className="block text-primary underline break-all" href={robinhoodTransactionUrl(receipt)} target="_blank" rel="noreferrer">{translateText("Transaction confirmed ↗")}</a>)}
       {localize(loaded && games.length === 0 && <p>{translateText("No matches found for this wallet.")}</p>)}
       {localize(games.map((game) => {
