@@ -49,8 +49,9 @@ test('production web deployment serves routes, assets, and readiness safely', as
     const malformed = await request('/%E0%A4%A');
     // Railway rejects invalid UTF-8 at its edge with 502 before the app receives it.
     // The local server must still return 400; both paths must remain healthy.
-    const edgeRejected = new URL(base).hostname.endsWith('.up.railway.app') &&
-      malformed.headers.get('server') === 'railway-hikari' && malformed.status === 502;
+    // Identify the edge by its response, including when serving a custom domain.
+    const edgeRejected = malformed.headers.get('server') === 'railway-hikari' &&
+      malformed.status === 502;
     if (edgeRejected) assert.equal(await malformed.text(), 'upstream error');
     else assert.equal(malformed.status, 400);
     assert.equal((await request('/health')).status, 200);

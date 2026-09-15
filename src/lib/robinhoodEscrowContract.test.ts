@@ -84,9 +84,9 @@ describe("RobinhoodChessEscrow", () => {
     expect(state.state).toBe(6);
   }, 30_000);
 
-  it("pays the winner in ETH before any separate wallet conversion", async () => {
-    const contest = keccak256(stringToHex("separate-wallet-swap"));
-    const stake = parseEther("0.1");
+  it.each(["0.002", "0.1"])("pays the winner at a %s ETH stake before any separate wallet conversion", async (stakeEth) => {
+    const contest = keccak256(stringToHex(`separate-wallet-swap-${stakeEth}`));
+    const stake = parseEther(stakeEth);
     const expiresAt = BigInt(Math.floor(Date.now() / 1000) + 3600);
     await send(accounts[0], "createContest", [contest, expiresAt], stake);
     await send(accounts[1], "joinContest", [contest], stake);

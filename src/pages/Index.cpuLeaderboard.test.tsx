@@ -203,11 +203,12 @@ describe('Index game entry and leaderboard', () => {
     mocks.joinRobinhoodWagerPvpQueue.mockResolvedValue('verified-wager-game');
     render(<MemoryRouter><Index /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: 'Wager' }));
-    fireEvent.click(await screen.findByRole('button', { name: '0.03' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Confirm 0.03 ETH & play' }));
+    expect(await screen.findByRole('button', { name: '0.002' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: '0.004' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm 0.004 ETH & play' }));
     await waitFor(() => expect(mocks.joinRobinhoodWagerPvpQueue).toHaveBeenCalledWith({
       address: wallet.address,
-      stakeWei: 30_000_000_000_000_000n,
+      stakeWei: 4_000_000_000_000_000n,
       timeControl: '5+0',
       signMessage: wallet.signMessage,
       writeContract: expect.any(Function),

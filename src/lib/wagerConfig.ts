@@ -49,7 +49,8 @@ export interface WagerConfig {
   holdGate: WagerHoldGateConfig;
 }
 
-const DEFAULT_PRESET_STAKES = [0.025, 0.03, 0.035, 0.04, 0.14, 0.24, 0.34];
+// 0.002 ETH is approximately US$5 at release; stakes are denominated in ETH.
+const DEFAULT_PRESET_STAKES = [0.002, 0.004, 0.01, 0.025, 0.03, 0.035, 0.04, 0.14, 0.24, 0.34];
 const DEFAULT_MAX_STAKE = 0.34;
 
 const boolEnv = (value: string | undefined): boolean => value === "true" || value === "1";
@@ -66,7 +67,8 @@ function parseStake(value: string): bigint | null {
 function parsePresetStakes(value: string | undefined, maxStake: bigint): bigint[] {
   const values = value ? value.split(",") : DEFAULT_PRESET_STAKES.map(String);
   const parsed = values.map(parseStake).filter((stake): stake is bigint => stake !== null && stake <= maxStake);
-  return parsed.length ? Array.from(new Set(parsed)).sort((a, b) => a < b ? -1 : 1) : [parseEther("0.025")];
+  const minimum = parseEther(String(DEFAULT_PRESET_STAKES[0]));
+  return parsed.length ? Array.from(new Set(parsed)).sort((a, b) => a < b ? -1 : 1) : [minimum < maxStake ? minimum : maxStake];
 }
 
 export function getWagerConfig(): WagerConfig {

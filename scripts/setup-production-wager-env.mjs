@@ -243,7 +243,7 @@ function main() {
     VITE_WAGER_MAX_STAKE_UNITS: assetDecimals === "9" ? String(Number(maxStakeRaw) / 1_000_000_000) : "0.34",
     VITE_WAGER_PRESET_STAKES: assetDecimals === "9"
       ? "0.025,0.03,0.035,0.04,0.14,0.24,0.34"
-      : "0.025,0.03,0.035,0.04,0.14,0.24,0.34",
+      : "0.002,0.004,0.01,0.025,0.03,0.035,0.04,0.14,0.24,0.34",
     VITE_WAGER_NEW_WAGERS_ENABLED: "false",
     VITE_WAGER_REAL_ESCROW_ENABLED: "false",
   };
