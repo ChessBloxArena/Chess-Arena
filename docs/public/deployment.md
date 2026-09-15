@@ -71,3 +71,7 @@ Do not duplicate a production environment with a live settlement worker merely t
 Deploy the reviewed Git snapshot. `.railwayignore` additionally excludes internal documents, recordings, local configuration, exports, and development output. Public artwork and music are required runtime files. GitHub history and local credentials are not required deployment inputs.
 
 The repository includes no production credentials. Keep provider credentials in the appropriate account secret store and use your own project identifiers. The optional production setup script requires `SUPABASE_PROJECT_REF`; review its actions before running it.
+
+### Robinhood RPC reliability
+
+Set `ROBINHOOD_RPC_URL` privately on the web and settlement-worker services and in the referee function secrets. An Alchemy Robinhood mainnet endpoint is supported. The website exposes only a bounded, read-only `/api/robinhood-rpc` proxy; API keys must never be placed in `VITE_` variables. Reads fall back to PublicNode and the official endpoint. The proxy briefly caches matching reads and backs off a failing primary for 15 seconds. Wallet signing and transaction broadcast remain separate from read failover. Deploy the referee separately when its transport changes.

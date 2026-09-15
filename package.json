@@ -36,7 +36,7 @@
     "setup:security": "bash scripts/setup-security.sh",
     "security:check": "node scripts/publication-guard.mjs staged && bash scripts/secret-scan.sh staged",
     "test:guards": "node --test scripts/publication-guard.test.mjs",
-    "test:deploy": "node --test scripts/deployment-smoke.test.mjs",
+    "test:deploy": "node --test scripts/deployment-smoke.test.mjs scripts/robinhood-rpc-proxy.test.mjs",
     "release:backend": "node scripts/verify-release-backend.mjs",
     "test:release-backend": "node --test scripts/verify-release-backend.test.mjs",
     "test:wallet-lifecycle": "node scripts/verify-local-wallet-lifecycle.mjs",

@@ -1,3 +1,4 @@
+import { robinhoodReadTransport } from '../supabase/functions/_shared/robinhoodReadTransport.mjs';
 import { payAutomaticRblx } from "./automatic-rblx-payout-core.mjs";
 import { automaticRblxAbi, resolveGameEscrow } from "../supabase/functions/_shared/automaticRblx.mjs";
 import { settleRobinhoodRow } from "./robinhood-settlement-core.mjs";
@@ -37,7 +38,7 @@ const chain = defineChain({
 });
 const account = privateKeyToAccount(privateKey);
 const wallet = createWalletClient({ account, chain, transport: http(RPC_URL) });
-const publicClient = createPublicClient({ chain, transport: http(RPC_URL) });
+const publicClient = createPublicClient({ chain, transport: robinhoodReadTransport(RPC_URL) });
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
 function bytes32(value, label) {

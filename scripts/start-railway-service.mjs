@@ -4,6 +4,7 @@ import { createReadStream, existsSync, statSync } from "node:fs";
 import http from "node:http";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRpcProxy } from './robinhood-rpc-proxy.mjs';
 
 const appRoot = fileURLToPath(new URL("..", import.meta.url));
 const distDir = resolve(appRoot, "dist");
@@ -87,12 +88,14 @@ function sendFile(req, res, filePath, status = 200) {
 }
 
 function startStaticWebServer() {
+  const rpc = createRpcProxy();
   if (!existsSync(indexPath)) {
     console.error(`Missing ${indexPath}. Run npm run build before starting the web service.`);
     process.exit(1);
   }
 
   const server = http.createServer((req, res) => {
+    if (req.url === '/api/robinhood-rpc') return void rpc(req, res);
     if (req.url === "/health" || req.url === "/health/") {
       return writeJson(res, 200, { ok: true, service: "web" });
     }
