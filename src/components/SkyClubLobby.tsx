@@ -1,5 +1,6 @@
 import { translateText, localize, useLanguage } from '@/lib/i18n';
 import LanguageToggle from './LanguageToggle';
+import PassAndPlaySetup from './PassAndPlaySetup';
 import LaunchContractAddress from './LaunchContractAddress';
 import { readPlayConsent } from '@/lib/playConsent';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from './ui/dialog';
@@ -67,6 +68,7 @@ export default function SkyClubLobby(p: Props) {
           {localize(details && wager && <div className="sky-terms-detail">{translateText("Both players deposit the same stake. Draws and cancelled matches return ETH. Your wallet shows deposit network fees. ")}{localize(automatic ? 'Before entry, review your RBLX minimum and the 15-minute ETH fallback. Stock Token eligibility and Uniswap terms apply.' : 'The winner claims ETH; optional RBLX conversion requires an eligible wallet and a separate swap approval.')}</div>)}
         </div>
       </div>
+      <PassAndPlaySetup disabled={p.busy} />
       <footer className="sky-rail-footer">{localize(consent && <div className="sky-consent-status"><Check size={14}/>{translateText(" Terms accepted ")}<button onClick={() => setTermsOpen(true)}>{translateText("Review")}</button></div>)}<button onClick={p.onFriends} disabled={p.busy}><Users size={17}/>{translateText(" Play with a friend ")}<ArrowRight size={16}/></button><button onClick={p.onLeaderboard}><Trophy size={16}/>{translateText(" Leaderboard")}</button></footer>
       <LaunchContractAddress />
     </section>

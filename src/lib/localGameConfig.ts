@@ -8,6 +8,9 @@ export interface LocalGameConfig {
   soundEnabled?: boolean;
   cpuCharacter?: LocalGameCpuCharacter;
   playerName?: string;
+  secondPlayerName?: string;
+  passAndPlay?: boolean;
+  autoRotate?: boolean;
 }
 
 const LOCAL_GAME_CONFIG_KEY = 'chess_local_game_config_v1';
@@ -49,6 +52,13 @@ export function normalizeLocalGameConfig(value: unknown): LocalGameConfig | null
   if (typeof value.soundEnabled === 'boolean') config.soundEnabled = value.soundEnabled;
   if (mode === 'cpu') config.cpuCharacter = normalizeCpuCharacter(value.cpuCharacter);
   if (typeof value.playerName === 'string') config.playerName = value.playerName;
+
+  if (mode === 'pvp' && value.passAndPlay === true) {
+    config.passAndPlay = true;
+    config.autoRotate = value.autoRotate !== false;
+    config.playerName = typeof value.playerName === 'string' ? value.playerName.trim().slice(0, 24) : undefined;
+    config.secondPlayerName = typeof value.secondPlayerName === 'string' ? value.secondPlayerName.trim().slice(0, 24) : undefined;
+  }
 
   return config;
 }

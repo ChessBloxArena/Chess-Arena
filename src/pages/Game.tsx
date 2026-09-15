@@ -1,4 +1,5 @@
 import { translateText, localize, useLanguage } from '@/lib/i18n';
+import PassAndPlayHandoff from '@/components/PassAndPlayHandoff';
 import GameActionMenu from '@/components/GameActionMenu';
 import { ArrowLeft, Music2, Volume2, VolumeX, Pause, Flag, Undo2, RotateCcw } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -51,7 +52,7 @@ export default function Game() {
   const location = useLocation();
   const navigate = useNavigate();
   const routeConfig = normalizeLocalGameConfig(location.state);
-  const [launchConfig] = useState<LocalGameConfig>(() =>
+  const [launchConfig, setLaunchConfig] = useState<LocalGameConfig>(() =>
     routeConfig ?? readLocalGameConfig() ?? { mode: 'pvp', difficulty: 'medium' }
   );
   const wallet = useSolanaWallet();
@@ -62,7 +63,10 @@ export default function Game() {
   const character = CHARACTERS[cpuCharacter];
   const [initialAudioPreferences] = useState(() => readAudioPreferences());
   const initialSoundEnabled = launchConfig.soundEnabled ?? initialAudioPreferences.sfxOn;
-  const playerName = getPlayerDisplayName(launchConfig.playerName);
+  const passAndPlay = mode === 'pvp' && launchConfig.passAndPlay === true;
+  const playerName = passAndPlay ? launchConfig.playerName || translateText('Player 1') : getPlayerDisplayName(launchConfig.playerName);
+  const secondPlayerName = launchConfig.secondPlayerName || translateText('PLAYER 2');
+  const [acknowledgedPly, setAcknowledgedPly] = useState(-1);
 
   const [musicOn, setMusicOn] = useState(initialAudioPreferences.musicOn);
   const [sfxOn, setSfxOn] = useState(initialSoundEnabled);
@@ -168,11 +172,17 @@ export default function Game() {
 
   const startNewGame = useCallback(() => {
     setSurrenderConfirmOpen(false);
+    if (passAndPlay) {
+      const nextConfig = { ...launchConfig, playerName: secondPlayerName, secondPlayerName: playerName };
+      setLaunchConfig(nextConfig);
+      navigate('/game', { replace: true, state: nextConfig });
+      setAcknowledgedPly(-1);
+    }
     reset();
     submittedCpuMatchRef.current = null;
     setCpuMatchRequestId(createCpuMatchRequestId());
     setIntroSeed((seed) => seed + 1);
-  }, [reset]);
+  }, [reset, passAndPlay, launchConfig, secondPlayerName, playerName, navigate]);
 
   useEffect(() => {
     setShowMatchIntro(true);
@@ -187,6 +197,7 @@ export default function Game() {
   }, [isGameOver]);
 
   const moveCount = history.length;
+  const handoffOpen = passAndPlay && !isGameOver && acknowledgedPly !== moveCount;
   const hasNoMoves = moveCount === 0;
   const lastMove = history[moveCount - 1];
   const lastMoveDescription = moveHistory.length > 0
@@ -277,7 +288,7 @@ export default function Game() {
       ? cpuThinking ? 'CPU THINKING' : `${translateText(character.name)} TO MOVE`
       : currentTurn === 'w'
         ? `${playerName} TO MOVE`
-        : 'PLAYER 2 TO MOVE';
+        : `${secondPlayerName} TO MOVE`;
   const playerTurnActiveLabel = isGameOver
     ? resignedBy
       ? `${resignedBy === 'w' ? 'WHITE' : 'BLACK'} SURRENDERED`
@@ -291,14 +302,14 @@ export default function Game() {
     {
       color: 'w',
       name: playerName,
-      label: 'YOU',
+      label: passAndPlay ? 'WHITE' : 'YOU',
       active: currentTurn === 'w',
       tone: 'local',
     },
     {
       color: 'b',
-      name: translateText(mode === 'cpu' ? character.name : 'PLAYER 2'),
-      label: mode === 'cpu' ? `CPU ${translateText(difficulty.toUpperCase())}` : 'LOCAL',
+      name: mode === 'cpu' ? translateText(character.name) : secondPlayerName,
+      label: mode === 'cpu' ? `CPU ${translateText(difficulty.toUpperCase())}` : passAndPlay ? 'BLACK' : 'LOCAL',
       active: currentTurn === 'b',
       tone: mode === 'cpu' ? 'cpu' : 'opponent',
     },
@@ -389,7 +400,7 @@ export default function Game() {
         <div className="game-title-block">
           <p className="stone-label text-[8px] font-retro">{translateText("CHESSBLOX")}</p>
           <p className="text-[6px] font-retro text-muted-foreground mt-0.5">
-            {localize(mode === 'cpu' ? `${playerName} VS ${translateText(character.name)} • ${translateText(difficulty.toUpperCase())}` : `${playerName} • LOCAL MATCH`)}
+            {localize(mode === 'cpu' ? `${playerName} VS ${translateText(character.name)} • ${translateText(difficulty.toUpperCase())}` : passAndPlay ? `${playerName} vs ${secondPlayerName} · ${translateText('Pass & Play')}` : `${playerName} • LOCAL MATCH`)}
           </p>
         </div>
         <div className="game-topbar-actions">
@@ -398,7 +409,7 @@ export default function Game() {
 
           <button
             className="retro-btn retro-btn-small"
-            onClick={() => { undo(); playMenuClick(); }}
+            onClick={() => { undo(); if (passAndPlay) setAcknowledgedPly(-1); playMenuClick(); }}
             disabled={moveCount === 0 || isGameOver || cpuThinking}
           >
             <Undo2 size={14}/>{translateText(" UNDO")}</button>
@@ -418,8 +429,9 @@ export default function Game() {
           invalidSquare={invalidMoveFeedback?.square ?? null}
           impactSignal={lastMoveFeedback ? { id: lastMoveFeedback.id, tone: lastMoveFeedback.tone } : null}
           moveFeedback={lastMoveFeedback}
-          onSquareClick={handleSquareClick}
-          onPieceDrop={handlePieceDrop}
+          onSquareClick={square => { if (!handoffOpen && !pauseOpen) handleSquareClick(square); }}
+          onPieceDrop={(from, to) => { if (!handoffOpen && !pauseOpen) handlePieceDrop(from, to); }}
+          flipped={passAndPlay && launchConfig.autoRotate !== false && currentTurn === 'b'}
           cpuMode={mode === 'cpu'}
           cpuThinking={cpuThinking}
           cpuCharacter={cpuCharacter}
@@ -463,9 +475,9 @@ export default function Game() {
         <ActionBanner event={actionBannerEvent} />
 
         <MatchIntroOverlay
-          show={showMatchIntro && !pauseOpen && !isGameOver}
+          show={showMatchIntro && !passAndPlay && !pauseOpen && !isGameOver}
           title={translateText("MATCH START")}
-          matchup={mode === 'cpu' ? `${playerName} VS ${translateText(character.name)}` : `${playerName} VS PLAYER 2`}
+          matchup={mode === 'cpu' ? `${playerName} VS ${translateText(character.name)}` : `${playerName} VS ${secondPlayerName}`}
           subtitle={localize(mode === 'cpu' ? `CPU ${translateText(difficulty.toUpperCase())}` : 'LOCAL MATCH')}
         />
 
@@ -498,15 +510,15 @@ export default function Game() {
               </p>
               <p className="text-[8px] font-retro text-foreground mb-6">
                 {localize(resignedBy
-                  ? `${resignedBy === 'w' ? 'WHITE' : 'BLACK'} SURRENDERED. ${resignedBy === 'w' ? 'BLACK' : 'WHITE'} WINS!`
+                  ? passAndPlay ? `${resignedBy === 'w' ? secondPlayerName : playerName} — ${translateText('WINS!')}` : `${resignedBy === 'w' ? 'WHITE' : 'BLACK'} SURRENDERED. ${resignedBy === 'w' ? 'BLACK' : 'WHITE'} WINS!`
                   : isCheckmate
                     ? mode === 'cpu'
                       ? currentTurn === 'w' ? character.winText : character.loseText
-                      : `${currentTurn === 'w' ? 'BLACK' : 'WHITE'} WINS!`
+                      : passAndPlay ? `${currentTurn === 'w' ? secondPlayerName : playerName} — ${translateText('WINS!')}` : `${currentTurn === 'w' ? 'BLACK' : 'WHITE'} WINS!`
                     : drawReason ?? 'THE BATTLE ENDS IN A DRAW')}
               </p>
               <div className="flex gap-3 justify-center">
-                <button className="retro-btn retro-btn-gold" onClick={() => { startNewGame(); playMenuClick(); }}>{translateText("REMATCH")}</button>
+                <button className="retro-btn retro-btn-gold" onClick={() => { startNewGame(); playMenuClick(); }}>{translateText(passAndPlay ? "Rematch · swap colors" : "REMATCH")}</button>
                 <button className="retro-btn" onClick={handleBack}>{translateText("MENU")}</button>
               </div>
             </div>
@@ -514,10 +526,13 @@ export default function Game() {
         ))}
       </div>
 
+      <PassAndPlayHandoff open={handoffOpen} name={currentTurn === 'w' ? playerName : secondPlayerName}
+        color={currentTurn} onReady={() => { setAcknowledgedPly(moveCount); playMenuClick(); }} />
+
       <GamePausePanel
         open={pauseOpen}
         title={localize(mode === 'cpu' ? `VS ${translateText(character.name)}` : 'PLAYER VS PLAYER')}
-        subtitle={localize(mode === 'cpu' ? `${playerName} • ${translateText(difficulty.toUpperCase())}` : `${playerName} • LOCAL MATCH`)}
+        subtitle={localize(mode === 'cpu' ? `${playerName} • ${translateText(difficulty.toUpperCase())}` : passAndPlay ? `${playerName} vs ${secondPlayerName} · ${translateText('Pass & Play')}` : `${playerName} • LOCAL MATCH`)}
         status={resignedBy ? 'SURRENDER' : isGameOver ? (isCheckmate ? 'CHECKMATE' : 'DRAW') : statusMessage.toUpperCase()}
         moves={moveCount}
         musicOn={musicOn}

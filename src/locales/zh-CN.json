@@ -803,5 +803,19 @@
   "Unable to complete the request. Please try again.": "无法完成请求，请重试。",
   "Token contract · CA": "代币合约 · CA",
   "Address coming soon": "合约地址即将公布",
-  "Copy unavailable. Select the address to copy it manually.": "无法自动复制，请选择合约地址手动复制。"
+  "Copy unavailable. Select the address to copy it manually.": "无法自动复制，请选择合约地址手动复制。",
+  "Play on this device": "在这台设备上对弈",
+  "Pass & Play · 2 players · Free": "同屏轮流对弈 · 双人 · 免费",
+  "Pass & Play": "同屏轮流对弈",
+  "Two players. One screen. No wallet needed.": "两位玩家，共用一块屏幕，无需钱包。",
+  "White player": "白方玩家",
+  "Black player": "黑方玩家",
+  "Rotate the board for each player": "每回合自动旋转棋盘",
+  "After each move, pass the screen and tap Ready. Untimed, standard chess. Rematches swap colors.": "每步后将设备交给对方，点击准备开始。标准国际象棋，不限时。再战时交换黑白。",
+  "Start Pass & Play": "开始同屏对弈",
+  "Your turn": "轮到你了",
+  "Pass the screen to the next player. Tap Ready when you have it.": "请将设备交给下一位玩家。接过设备后点击准备开始。",
+  "Ready to play": "准备开始",
+  "Rematch · swap colors": "再战 · 交换黑白",
+  "WINS!": "获胜！"
 }
