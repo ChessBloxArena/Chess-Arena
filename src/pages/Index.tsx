@@ -35,6 +35,7 @@ import { useArenaTheme } from '@/hooks/useArenaTheme';
 import { Check, Copy, Unplug, Wallet, ArrowLeft, Crown, Swords, Trophy } from 'lucide-react';
 import LanguageToggle from '@/components/LanguageToggle';
 import SkyClubLobby from '@/components/SkyClubLobby';
+import LaunchContractAddress from '@/components/LaunchContractAddress';
 import { readQuickPlayPreferences, saveQuickPlayPreferences } from '@/lib/quickPlayPreferences';
 import { automaticRblxPayoutEnabled, rblxConversionEnabled, robinhoodEscrowAddress } from '@/lib/robinhoodChain';
 import { wagerInvitePath } from '@/lib/wagerInvite';
@@ -42,14 +43,10 @@ import { wagerInvitePath } from '@/lib/wagerInvite';
 const TitleChessScene = lazy(() => import('@/components/TitleChessScene'));
 
 type Screen = 'press-start' | 'menu';
-type ContractCopyState = 'idle' | 'copying' | 'copied' | 'failed';
 type MenuTab = 'play' | 'leaderboard';
 type OnlinePanelMode = 'lobbies' | 'create';
 type LobbyFilter = 'all' | PvpLobbyMatchType;
 type LobbyStakeMode = 'preset' | 'custom';
-
-const DEFAULT_LAUNCH_CONTRACT_ADDRESS = 'Dp4pqN6R2WprUakMDdqjEdebFbNrdWRPJAeexpvYpump';
-const DEFAULT_LAUNCH_TOKEN_SYMBOL = 'TOKEN';
 
 function isLocalHost(): boolean {
   return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
@@ -177,7 +174,6 @@ export default function Index() {
   const [cpuLeaderboardLoaded, setCpuLeaderboardLoaded] = useState(false);
   const [cpuLeaderboardError, setCpuLeaderboardError] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState(() => readStoredPlayerName());
-  const [contractCopyState, setContractCopyState] = useState<ContractCopyState>('idle');
   const { themesEnabled } = useArenaTheme();
   const wagerConfig = getWagerConfig();
   const wagersEnabled = wagerConfig.newWagersEnabled && wagerConfig.realEscrowEnabled && Boolean(robinhoodEscrowAddress());
@@ -302,29 +298,6 @@ export default function Index() {
     holdRequiredLabel,
   });
   const playerDisplayName = getPlayerDisplayName(playerName);
-  const configuredLaunchContractAddress = String(import.meta.env.VITE_LAUNCH_CONTRACT_ADDRESS ?? '').trim();
-  const configuredLaunchTokenSymbol = String(import.meta.env.VITE_LAUNCH_TOKEN_SYMBOL ?? '').trim();
-  const launchContractAddress =
-    configuredLaunchContractAddress ||
-    DEFAULT_LAUNCH_CONTRACT_ADDRESS ||
-    (isWsolAsset(wagerConfig.asset) ? '' : wagerConfig.asset.mint);
-  const launchTokenSymbol =
-    configuredLaunchTokenSymbol ||
-    (launchContractAddress === DEFAULT_LAUNCH_CONTRACT_ADDRESS ? DEFAULT_LAUNCH_TOKEN_SYMBOL : wagerConfig.asset.symbol);
-  const hasLaunchContractAddress = launchContractAddress.length > 0;
-  const contractCopyButtonText =
-    contractCopyState === 'copying'
-      ? 'COPYING'
-      : contractCopyState === 'copied'
-        ? 'COPIED'
-        : 'COPY';
-  const contractCopyStatus =
-    contractCopyState === 'copied'
-      ? 'CA COPIED TO CLIPBOARD'
-      : contractCopyState === 'failed'
-        ? 'COPY FAILED'
-        : '';
-
   useEffect(() => {
     saveStoredPlayerName(playerName);
   }, [playerName]);
@@ -332,12 +305,6 @@ export default function Index() {
   useEffect(() => {
     setSoundEnabled(soundOn);
   }, [soundOn]);
-
-  useEffect(() => {
-    if (contractCopyState === 'idle' || contractCopyState === 'copying') return;
-    const timeout = window.setTimeout(() => setContractCopyState('idle'), 1800);
-    return () => window.clearTimeout(timeout);
-  }, [contractCopyState]);
 
   const refreshLobbies = useCallback(async (options: { quiet?: boolean } = {}) => {
     if (screen !== 'menu' || mode !== 'pvp') return;
@@ -406,19 +373,6 @@ export default function Index() {
     }, 1800);
     return () => window.clearTimeout(timeout);
   }, [copiedLobbyGameId, lobbyCopyError]);
-
-  const handleCopyContractAddress = async () => {
-    if (!hasLaunchContractAddress) return;
-    playMenuClick();
-    setContractCopyState('copying');
-    try {
-      await copyTextToClipboard(launchContractAddress);
-      setContractCopyState('copied');
-    } catch (err) {
-      console.error('Failed to copy launch contract address', err);
-      setContractCopyState('failed');
-    }
-  };
 
   const enterWagerGame = async (stakeLamports: bigint, timeControl: string): Promise<string> => {
     if (!wallet.address) {
@@ -715,35 +669,7 @@ export default function Index() {
           ) : !showOptions ? (
             <div className={`menu-main-content ${mode === 'pvp' ? 'is-pvp-dashboard' : ''}`}>
               <div className="menu-side-column">
-                <details className="retro-panel launch-ca-panel p-4" aria-label={translateText("Launch contract address")}><summary>{translateText("Token information")}</summary>
-                  <div className="launch-ca-header">
-                    <span>{translateText("LAUNCH CA")}</span>
-                    <span>{localize(launchTokenSymbol.toUpperCase())}</span>
-                  </div>
-                  <div className="launch-ca-row">
-                    <button
-                      type="button"
-                      className={`launch-ca-value ${hasLaunchContractAddress ? '' : 'is-empty'}`}
-                      onClick={handleCopyContractAddress}
-                      disabled={!hasLaunchContractAddress || contractCopyState === 'copying'}
-                      aria-label={localize(hasLaunchContractAddress ? 'Copy launch contract address' : 'Launch contract address pending')}
-                    >
-                      {localize(hasLaunchContractAddress ? launchContractAddress : 'CA TBA')}
-                    </button>
-                    <button
-                      type="button"
-                      className="retro-btn retro-btn-small launch-ca-copy-btn"
-                      onClick={handleCopyContractAddress}
-                      disabled={!hasLaunchContractAddress || contractCopyState === 'copying'}
-                    >
-                      {localize(contractCopyState === 'copied' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />)}
-                      <span>{localize(contractCopyButtonText)}</span>
-                    </button>
-                  </div>
-                  <p className={`launch-ca-status ${contractCopyState === 'failed' ? 'is-error' : ''}`} aria-live="polite">
-                    {localize(contractCopyStatus)}
-                  </p>
-                </details>
+                <LaunchContractAddress />
 
                 {/* Mode selection */}
                 <div className="retro-panel p-4">

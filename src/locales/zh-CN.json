@@ -800,5 +800,8 @@
   "Transaction details": "交易详情",
   "Quote status": "报价状态",
   "The network is temporarily unavailable. Refresh your balance. If you already sent a transaction, check My funds before trying again.": "网络暂时不可用，请刷新余额。如果您已发送交易，请先查看“我的资金”，再尝试下一步。",
-  "Unable to complete the request. Please try again.": "无法完成请求，请重试。"
+  "Unable to complete the request. Please try again.": "无法完成请求，请重试。",
+  "Token contract · CA": "代币合约 · CA",
+  "Address coming soon": "合约地址即将公布",
+  "Copy unavailable. Select the address to copy it manually.": "无法自动复制，请选择合约地址手动复制。"
 }

@@ -1,5 +1,6 @@
 import { translateText, localize, useLanguage } from '@/lib/i18n';
 import LanguageToggle from './LanguageToggle';
+import LaunchContractAddress from './LaunchContractAddress';
 import { readPlayConsent } from '@/lib/playConsent';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from './ui/dialog';
 import PlayTermsText from './PlayTermsText';
@@ -67,6 +68,7 @@ export default function SkyClubLobby(p: Props) {
         </div>
       </div>
       <footer className="sky-rail-footer">{localize(consent && <div className="sky-consent-status"><Check size={14}/>{translateText(" Terms accepted ")}<button onClick={() => setTermsOpen(true)}>{translateText("Review")}</button></div>)}<button onClick={p.onFriends} disabled={p.busy}><Users size={17}/>{translateText(" Play with a friend ")}<ArrowRight size={16}/></button><button onClick={p.onLeaderboard}><Trophy size={16}/>{translateText(" Leaderboard")}</button></footer>
+      <LaunchContractAddress />
     </section>
     <section className="sky-world" aria-label={translateText("Floating chess island")}><Suspense fallback={<div className="sky-loading">{translateText("Setting the board…")}</div>}><TitleChessScene/></Suspense>
       <header className="sky-world-header"><LanguageToggle/><DropdownMenu><DropdownMenuTrigger asChild><button className="sky-wallet"><Wallet size={16}/>{localize(p.wallet.address ? p.wallet.balanceWei === null ? p.wallet.shortAddress : `${Number(formatEther(p.wallet.balanceWei)).toLocaleString(undefined, {minimumFractionDigits:3,maximumFractionDigits:3})} ETH` : 'Your wallet')}<ChevronDown size={14}/></button></DropdownMenuTrigger><DropdownMenuContent align="end" className="sky-dropdown">{localize(p.wallet.address ? <><div className="px-3 py-2 text-xs">{p.wallet.shortAddress}</div><div className="px-3 py-2 text-sm">{localize(p.wallet.balanceWei === null ? 'Loading balance…' : `${formatEther(p.wallet.balanceWei)} ETH`)}</div><DropdownMenuItem asChild><Link to="/funds">{translateText("My funds & payouts")}</Link></DropdownMenuItem><DropdownMenuSeparator/><DropdownMenuItem onSelect={() => void p.wallet.disconnect()}>{translateText("Disconnect")}</DropdownMenuItem></> : <DropdownMenuItem onSelect={() => void p.wallet.connect()}>{translateText("Connect wallet")}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu><button className="sky-settings" onClick={p.onSettings} aria-label={translateText("Settings")}><Settings2 size={20}/></button></header>

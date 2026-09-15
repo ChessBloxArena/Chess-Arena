@@ -83,3 +83,15 @@
   .game-topbar-actions .retro-btn-small { min-width: 42px; min-height: 42px; }
   .sky-world-header { gap: 8px; right: 14px; left: 14px; }
 }
+.launch-contract { width:100%; min-width:0; margin-top:16px; padding:13px; border:1px solid #e2dccd; border-radius:13px; background:#fffdf7; color:#293d50; font-family:'Nunito',sans-serif; }
+.launch-contract-heading { display:flex; justify-content:space-between; gap:8px; font-size:11px; font-weight:800; color:#6b756f; }
+.launch-contract-heading span:last-child { overflow-wrap:anywhere; }
+.launch-contract-row { display:flex; align-items:center; gap:10px; margin-top:7px; }
+.launch-contract-row code { flex:1; min-width:0; font-size:12px; line-height:1.7; overflow-wrap:anywhere; user-select:all; }
+.launch-contract-pending { flex:1; font-size:13px; color:#7b8078; }
+.launch-contract-row button { flex:none; display:flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:0 10px; border:1px solid #dcc684; border-radius:9px; background:#f7e7b8; font-size:12px; font-weight:800; }
+.launch-contract-row button:hover:enabled { background:#f5dc94; }
+.launch-contract-row button:focus-visible { outline:3px solid #527d9c; outline-offset:3px; }
+.launch-contract-row button:disabled { opacity:.45; cursor:not-allowed; }
+.launch-contract-status { margin-top:7px; font-size:11px; line-height:1.5; }
+.launch-contract-status:empty { display:none; }
