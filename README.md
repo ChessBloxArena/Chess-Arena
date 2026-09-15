@@ -10,7 +10,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-88ACF1?style=flat-square&logo=typescript&logoColor=white)
 ![Node](https://img.shields.io/badge/Node-22-73D8C4?style=flat-square&logo=nodedotjs&logoColor=white)
 
-[**Play the preview ↗**](https://public-preview-public-preview.up.railway.app) · [Get started](#get-started) · [Deployment](docs/public/deployment.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
+[**Play ChessBlox ↗**](https://www.chessblox.net) · [Get started](#get-started) · [Deployment](docs/public/deployment.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
 
 </div>
 
@@ -29,6 +29,8 @@ The public Railway preview supports CPU practice. Online play and wallet-backed 
 | **Stay in control** | Orbit, lock, and reset the camera; responsive layouts and reduced-motion support. |
 | **Meet across the board** | Referee-backed online play, invitations, quick chat, connection feedback, and leaderboards with Supabase. |
 | **Inspect the infrastructure** | Escrow contracts, wallet recovery, settlement workers, and gated automatic-payout code are included for development and review. |
+
+English and Simplified Chinese (简体中文) are available from the homepage language toggle. Your choice is remembered across pages and visits.
 
 ## Get started
 

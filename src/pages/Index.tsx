@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { useAutomaticPayoutReview } from "@/components/AutomaticPayoutReview";
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +33,7 @@ import CpuLeaderboardPanel from '@/components/CpuLeaderboardPanel';
 import ThemeSelector from '@/components/ThemeSelector';
 import { useArenaTheme } from '@/hooks/useArenaTheme';
 import { Check, Copy, Unplug, Wallet, ArrowLeft, Crown, Swords, Trophy } from 'lucide-react';
+import LanguageToggle from '@/components/LanguageToggle';
 import SkyClubLobby from '@/components/SkyClubLobby';
 import { readQuickPlayPreferences, saveQuickPlayPreferences } from '@/lib/quickPlayPreferences';
 import { automaticRblxPayoutEnabled, rblxConversionEnabled, robinhoodEscrowAddress } from '@/lib/robinhoodChain';
@@ -143,6 +145,7 @@ async function copyTextToClipboard(text: string): Promise<void> {
 }
 
 export default function Index() {
+  useLanguage();
   const reviewPayout = useAutomaticPayoutReview();
   const [savedQuickPlay] = useState(readQuickPlayPreferences);
   const [screen, setScreen] = useState<Screen>('press-start');
@@ -671,14 +674,14 @@ export default function Index() {
         <TitleChessScene />
       </Suspense>
       </div>
-      <div className="blox-menu-top"><button className="blox-back" onClick={() => { setScreen('press-start'); setShowOptions(false); playMenuClick(); }}><ArrowLeft size={18}/> BACK TO ISLAND</button><a href="/funds" className="blox-back">MY FUNDS</a><span><Crown size={18}/> CHESSBLOX</span></div>
+      <div className="blox-menu-top"><LanguageToggle/><button className="blox-back" onClick={() => { setScreen('press-start'); setShowOptions(false); playMenuClick(); }}><ArrowLeft size={18}/>{translateText(" BACK TO ISLAND")}</button><a href="/funds" className="blox-back">{translateText("MY FUNDS")}</a><span><Crown size={18}/>{translateText(" CHESSBLOX")}</span></div>
 
       <div className="relative z-20 menu-screen-scroll p-4">
         <div className={`retro-slide-up main-menu-stack max-w-md w-full ${mode === 'pvp' ? 'is-pvp-wide' : ''}`}>
           <div className="blox-menu-heading">
-            <p className="blox-eyebrow">YOUR NEXT GREAT MOVE</p>
-            <h1>{showOptions ? 'Make it yours.' : menuTab === 'leaderboard' ? 'The best on the block.' : 'Choose your challenge.'}</h1>
-            <p>{showOptions ? 'A little tuning before the next big move.' : 'Set your board. Find your rival. Take the crown.'}</p>
+            <p className="blox-eyebrow">{translateText("YOUR NEXT GREAT MOVE")}</p>
+            <h1>{localize(showOptions ? 'Make it yours.' : menuTab === 'leaderboard' ? 'The best on the block.' : 'Choose your challenge.')}</h1>
+            <p>{localize(showOptions ? 'A little tuning before the next big move.' : 'Set your board. Find your rival. Take the crown.')}</p>
           </div>
 
           <div className="lobby-panel-tabs main-menu-tabs mb-4">
@@ -689,8 +692,7 @@ export default function Index() {
                 playMenuClick();
               }}
             >
-              <Swords size={17}/> PLAY
-            </button>
+              <Swords size={17}/>{translateText(" PLAY")}</button>
             <button
               className={`retro-btn retro-btn-small ${menuTab === 'leaderboard' ? 'retro-selected' : ''}`}
               onClick={() => {
@@ -699,11 +701,10 @@ export default function Index() {
                 playMenuClick();
               }}
             >
-              <Trophy size={17}/> LEADERBOARD
-            </button>
+              <Trophy size={17}/>{translateText(" LEADERBOARD")}</button>
           </div>
 
-          {menuTab === 'leaderboard' ? (
+          {localize(menuTab === 'leaderboard' ? (
             <CpuLeaderboardPanel
               available={isSupabaseConfigured}
               entries={cpuLeaderboardEntries}
@@ -714,10 +715,10 @@ export default function Index() {
           ) : !showOptions ? (
             <div className={`menu-main-content ${mode === 'pvp' ? 'is-pvp-dashboard' : ''}`}>
               <div className="menu-side-column">
-                <details className="retro-panel launch-ca-panel p-4" aria-label="Launch contract address"><summary>Token information</summary>
+                <details className="retro-panel launch-ca-panel p-4" aria-label={translateText("Launch contract address")}><summary>{translateText("Token information")}</summary>
                   <div className="launch-ca-header">
-                    <span>LAUNCH CA</span>
-                    <span>{launchTokenSymbol.toUpperCase()}</span>
+                    <span>{translateText("LAUNCH CA")}</span>
+                    <span>{localize(launchTokenSymbol.toUpperCase())}</span>
                   </div>
                   <div className="launch-ca-row">
                     <button
@@ -725,9 +726,9 @@ export default function Index() {
                       className={`launch-ca-value ${hasLaunchContractAddress ? '' : 'is-empty'}`}
                       onClick={handleCopyContractAddress}
                       disabled={!hasLaunchContractAddress || contractCopyState === 'copying'}
-                      aria-label={hasLaunchContractAddress ? 'Copy launch contract address' : 'Launch contract address pending'}
+                      aria-label={localize(hasLaunchContractAddress ? 'Copy launch contract address' : 'Launch contract address pending')}
                     >
-                      {hasLaunchContractAddress ? launchContractAddress : 'CA TBA'}
+                      {localize(hasLaunchContractAddress ? launchContractAddress : 'CA TBA')}
                     </button>
                     <button
                       type="button"
@@ -735,140 +736,125 @@ export default function Index() {
                       onClick={handleCopyContractAddress}
                       disabled={!hasLaunchContractAddress || contractCopyState === 'copying'}
                     >
-                      {contractCopyState === 'copied' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-                      <span>{contractCopyButtonText}</span>
+                      {localize(contractCopyState === 'copied' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />)}
+                      <span>{localize(contractCopyButtonText)}</span>
                     </button>
                   </div>
                   <p className={`launch-ca-status ${contractCopyState === 'failed' ? 'is-error' : ''}`} aria-live="polite">
-                    {contractCopyStatus}
+                    {localize(contractCopyStatus)}
                   </p>
                 </details>
 
                 {/* Mode selection */}
                 <div className="retro-panel p-4">
-                  <p className="text-[9px] font-retro text-muted-foreground mb-3 text-center">
-                    SELECT MODE
-                  </p>
+                  <p className="text-[9px] font-retro text-muted-foreground mb-3 text-center">{translateText("SELECT MODE")}</p>
                   <div className="flex gap-3 justify-center">
                     <button
                       className={`retro-btn retro-btn-small ${mode === 'pvp' ? 'retro-selected' : ''}`}
                       onClick={() => { setMode('pvp'); setCreateError(null); setWagerError(null); playMenuClick(); }}
-                    >
-                      PVP
-                    </button>
+                    >{translateText("PVP")}</button>
                     <button
                       className={`retro-btn retro-btn-small ${mode === 'cpu' ? 'retro-selected' : ''}`}
                       onClick={() => { setMode('cpu'); setCreateError(null); setWagerError(null); playMenuClick(); }}
-                    >
-                      VS CPU
-                    </button>
+                    >{translateText("VS CPU")}</button>
                   </div>
                 </div>
 
-                {mode === 'pvp' && <details className="retro-panel blox-wallet p-4" open={pvpEntryMode === 'wager' || lobbyMatchType === 'wager'}><summary>Wallet & wagers</summary><WalletStatusPanel wallet={wallet} /></details>}
+                {localize(mode === 'pvp' && <details className="retro-panel blox-wallet p-4" open={pvpEntryMode === 'wager' || lobbyMatchType === 'wager'}><summary>{translateText("Wallet & wagers")}</summary><WalletStatusPanel wallet={wallet} /></details>)}
 
-                {mode === 'cpu' && (
-                  <details className="retro-panel blox-rewards p-4 space-y-3"><summary>CPU rewards & wallet</summary>
+                {localize(mode === 'cpu' && (
+                  <details className="retro-panel blox-rewards p-4 space-y-3"><summary>{translateText("CPU rewards & wallet")}</summary>
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-[9px] font-retro text-muted-foreground">CPU REWARDS</p>
+                      <p className="text-[9px] font-retro text-muted-foreground">{translateText("CPU REWARDS")}</p>
                       <span className={`text-[7px] font-retro ${wallet.address ? 'text-primary' : 'text-muted-foreground'}`}>
-                        {wallet.shortAddress ?? 'NO WALLET'}
+                        {localize(wallet.shortAddress ?? 'NO WALLET')}
                       </span>
                     </div>
-                    <p className="text-[7px] leading-4 text-muted-foreground">
-                      CONNECT A WALLET TO RECEIVE AUTOMATIC CA TOKEN PAYOUTS AFTER VERIFIED CPU CHECKMATES.
-                    </p>
-                    {!wallet.address ? (
+                    <p className="text-[7px] leading-4 text-muted-foreground">{translateText("CONNECT A WALLET TO RECEIVE AUTOMATIC CA TOKEN PAYOUTS AFTER VERIFIED CPU CHECKMATES.")}</p>
+                    {localize(!wallet.address ? (
                       <button
                         className="retro-btn retro-btn-small flex w-full items-center justify-center gap-2"
                         onClick={() => void wallet.connect()}
                         disabled={wallet.connecting}
                       >
                         <Wallet size={14} aria-hidden="true" />
-                        {wallet.connecting ? 'CONNECTING...' : 'CONNECT WALLET'}
+                        {localize(wallet.connecting ? 'CONNECTING...' : 'CONNECT WALLET')}
                       </button>
                     ) : (
                       <button
                         className="retro-btn retro-btn-small flex w-full items-center justify-center gap-2"
                         onClick={() => void wallet.disconnect()}
                       >
-                        <Unplug size={14} aria-hidden="true" />
-                        DISCONNECT
-                      </button>
-                    )}
-                    {wallet.error && (
-                      <p className="text-[7px] leading-4 text-destructive">{wallet.error}</p>
-                    )}
+                        <Unplug size={14} aria-hidden="true" />{translateText("DISCONNECT")}</button>
+                    ))}
+                    {localize(wallet.error && (
+                      <p className="text-[7px] leading-4 text-destructive">{localize(wallet.error)}</p>
+                    ))}
                   </details>
-                )}
+                ))}
 
                 {/* Character selection (CPU only) */}
-                {mode === 'cpu' && (
+                {localize(mode === 'cpu' && (
                   <div className="retro-panel p-4">
-                    <p className="text-[9px] font-retro text-muted-foreground mb-3 text-center">
-                      SELECT OPPONENT
-                    </p>
+                    <p className="text-[9px] font-retro text-muted-foreground mb-3 text-center">{translateText("SELECT OPPONENT")}</p>
                     <div className="flex gap-3 justify-center">
                       <button
                         className={`retro-btn retro-btn-small flex flex-col items-center gap-1 px-4 py-2 ${cpuCharacter === 'ivan' ? 'retro-selected' : ''}`}
                         onClick={() => { setCpuCharacter('ivan'); playMenuClick(); }}
                       >
-                        <span>BLOX BARON</span>
-                        <span className="text-[6px] text-muted-foreground">Block Strategist</span>
+                        <span>{translateText("BLOX BARON")}</span>
+                        <span className="text-[6px] text-muted-foreground">{translateText("Block Strategist")}</span>
                       </button>
                       <button
                         className={`retro-btn retro-btn-small flex flex-col items-center gap-1 px-4 py-2 ${cpuCharacter === 'vinnie' ? 'retro-selected' : ''}`}
                         onClick={() => { setCpuCharacter('vinnie'); playMenuClick(); }}
                       >
-                        <span>ROOK RANGER</span>
-                        <span className="text-[6px] text-muted-foreground">Sky Island Champion</span>
+                        <span>{translateText("ROOK RANGER")}</span>
+                        <span className="text-[6px] text-muted-foreground">{translateText("Sky Island Champion")}</span>
                       </button>
                     </div>
                   </div>
-                )}
+                ))}
 
                 {/* Difficulty (CPU only) */}
-                {mode === 'cpu' && (
+                {localize(mode === 'cpu' && (
                   <div className="retro-panel p-4">
-                    <p className="text-[9px] font-retro text-muted-foreground mb-3 text-center">
-                      CPU DIFFICULTY
-                    </p>
+                    <p className="text-[9px] font-retro text-muted-foreground mb-3 text-center">{translateText("CPU DIFFICULTY")}</p>
                     <div className="flex gap-2 justify-center">
-                      {(['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
+                      {localize((['easy', 'medium', 'hard'] as Difficulty[]).map(d => (
                         <button
                           key={d}
                           className={`retro-btn retro-btn-small flex min-w-[96px] flex-col items-center gap-1 px-4 py-2 ${difficulty === d ? 'retro-selected' : ''}`}
                           onClick={() => { setDifficulty(d); playMenuClick(); }}
                         >
-                          <span>{d.toUpperCase()}</span>
+                          <span>{localize(d.toUpperCase())}</span>
                           <span className="text-[6px] text-muted-foreground">
-                            {formatCpuChessReward(cpuDifficultyPoints(d))} POINTS
-                          </span>
+                            {localize(formatCpuChessReward(cpuDifficultyPoints(d)))}{translateText(" POINTS")}</span>
                         </button>
-                      ))}
+                      )))}
                     </div>
                   </div>
-                )}
+                ))}
               </div>
 
               <div className="menu-primary-column">
 
               {/* PvP lobbies */}
-              {mode === 'pvp' && (
+              {localize(mode === 'pvp' && (
                 <div className="retro-panel lobby-panel p-4 space-y-3">
                   <div className="lobby-panel-heading">
-                    <p>ONLINE PLAY</p>
-                    <span>{lobbiesLoading ? 'SYNC...' : `${filteredLobbies.length} READY`}</span>
+                    <p>{translateText("ONLINE PLAY")}</p>
+                    <span>{localize(lobbiesLoading ? 'SYNC...' : `${filteredLobbies.length} READY`)}</span>
                   </div>
                   <label className="player-tag-field">
-                    <span>PLAYER TAG</span>
+                    <span>{translateText("PLAYER TAG")}</span>
                     <input
                       className="retro-input"
                       value={playerName}
                       onChange={(event) => setPlayerName(normalizePlayerNameInput(event.target.value))}
                       onBlur={() => setPlayerName(playerDisplayName)}
                       maxLength={14}
-                      aria-label="Player tag"
+                      aria-label={translateText("Player tag")}
                     />
                   </label>
 
@@ -876,51 +862,43 @@ export default function Index() {
                     <button
                       className={`retro-btn retro-btn-small ${onlinePanelMode === 'lobbies' ? 'retro-selected' : ''}`}
                       onClick={() => { setOnlinePanelMode('lobbies'); setCreateError(null); setWagerError(null); playMenuClick(); }}
-                    >
-                      QUICK PLAY
-                    </button>
+                    >{translateText("QUICK PLAY")}</button>
                     <button
                       className={`retro-btn retro-btn-small ${onlinePanelMode === 'create' ? 'retro-selected' : ''}`}
                       onClick={() => { setOnlinePanelMode('create'); setCreateError(null); setWagerError(null); playMenuClick(); }}
-                    >
-                      CUSTOM
-                    </button>
+                    >{translateText("CUSTOM")}</button>
                   </div>
 
-                  {onlinePanelMode === 'lobbies' ? (
+                  {localize(onlinePanelMode === 'lobbies' ? (
                     <div className="lobby-browse-layout">
                       <div className="lobby-match-setup">
                         <div className="lobby-subhead">
-                          <span>QUICK PLAY</span>
-                          <span>{quickFormat.label.toUpperCase()}</span>
+                          <span>{translateText("QUICK PLAY")}</span>
+                          <span>{localize(quickFormat.label.toUpperCase())}</span>
                         </div>
 
                         <div className="lobby-control-group">
-                          <span>MODE</span>
+                          <span>{translateText("MODE")}</span>
                           <div className="lobby-choice-row">
                             <button
                               className={`retro-btn retro-btn-small ${pvpEntryMode === 'practice' ? 'retro-selected' : ''}`}
                               onClick={() => { setPvpEntryMode('practice'); setWagerPhase('idle'); setWagerError(null); setCreateError(null); playMenuClick(); }}
-                            >
-                              FREE
-                            </button>
+                            >{translateText("FREE")}</button>
                             <button
                               className={`retro-btn retro-btn-small ${pvpEntryMode === 'wager' ? 'retro-selected' : ''}`}
                               onClick={() => { setPvpEntryMode('wager'); setWagerPhase('idle'); setWagerError(null); setCreateError(null); playMenuClick(); }}
-                            >
-                              WAGER
-                            </button>
+                            >{translateText("WAGER")}</button>
                           </div>
                         </div>
 
                         <div className="lobby-control-group">
-                          <span>FORMAT</span>
-                          <div className="lobby-format-family-grid" aria-label="Quick match format">
-                            {formatFamilies.map((family) => (
+                          <span>{translateText("FORMAT")}</span>
+                          <div className="lobby-format-family-grid" aria-label={translateText("Quick match format")}>
+                            {localize(formatFamilies.map((family) => (
                               <div className="lobby-format-family" key={family}>
-                                <span>{chessFormatFamilyLabel(family)}</span>
+                                <span>{localize(chessFormatFamilyLabel(family))}</span>
                                 <div className="lobby-format-row">
-                                  {CHESS_TIME_CONTROL_FORMATS.filter((format) => format.family === family).map((format) => {
+                                  {localize(CHESS_TIME_CONTROL_FORMATS.filter((format) => format.family === family).map((format) => {
                                     const formatQueueCopy = queueCopyFor(queuePlayersFor(quickMatchType, format.timeControl, selectedQueueStakeRaw));
                                     return (
                                       <button
@@ -928,27 +906,27 @@ export default function Index() {
                                         className={`retro-btn retro-btn-small ${quickFormatId === format.id ? 'retro-selected' : ''}`}
                                         onClick={() => { setQuickFormatId(format.id); setWagerPhase('idle'); setCreateError(null); setWagerError(null); playMenuClick(); }}
                                       >
-                                        <span>{format.timeControl}</span>
-                                        {formatQueueCopy && <small className="lobby-format-queue">{formatQueueCopy}</small>}
+                                        <span>{localize(format.timeControl)}</span>
+                                        {localize(formatQueueCopy && <small className="lobby-format-queue">{localize(formatQueueCopy)}</small>)}
                                       </button>
                                     );
-                                  })}
+                                  }))}
                                 </div>
                               </div>
-                            ))}
+                            )))}
                           </div>
                         </div>
 
-                        {selectedQueueCopy && (
+                        {localize(selectedQueueCopy && (
                           <p className="lobby-queue-count">
-                            {selectedQueueCopy}
+                            {localize(selectedQueueCopy)}
                           </p>
-                        )}
+                        ))}
 
-                        {pvpEntryMode === 'wager' && (
+                        {localize(pvpEntryMode === 'wager' && (
                           <div className="lobby-wager-setup">
                             <div className="flex flex-wrap items-center justify-center gap-2">
-                              {wallet.address ? (
+                              {localize(wallet.address ? (
                                 <>
                                   <button
                                     className="retro-btn retro-btn-small"
@@ -957,80 +935,76 @@ export default function Index() {
                                       void wagerHoldBalance.refresh();
                                     }}
                                   >
-                                    {wallet.refreshing || wagerHoldBalance.refreshing
+                                    {localize(wallet.refreshing || wagerHoldBalance.refreshing
                                       ? 'BAL...'
-                                      : `${wallet.shortAddress} • ${wallet.balanceEth?.toFixed(4) ?? '--'} ETH • ${wagerClusterLabel}`}
+                                      : `${wallet.shortAddress} • ${wallet.balanceEth?.toFixed(4) ?? '--'} ETH • ${wagerClusterLabel}`)}
                                   </button>
-                                  <button className="retro-btn retro-btn-small" onClick={wallet.disconnect}>
-                                    DISCONNECT
-                                  </button>
+                                  <button className="retro-btn retro-btn-small" onClick={wallet.disconnect}>{translateText("DISCONNECT")}</button>
                                 </>
                               ) : (
                                 <button className="retro-btn retro-btn-small" onClick={wallet.connect} disabled={wallet.connecting}>
-                                  {wallet.connecting ? 'CONNECTING...' : 'CONNECT WALLET'}
+                                  {localize(wallet.connecting ? 'CONNECTING...' : 'CONNECT WALLET')}
                                 </button>
-                              )}
+                              ))}
                             </div>
 
                             <div className="lobby-stake-row">
-                              {wagerConfig.presetStakeLamports.map((stake) => (
+                              {localize(wagerConfig.presetStakeLamports.map((stake) => (
                                 <button
                                   key={stake.toString()}
                                   className={`retro-btn retro-btn-small ${selectedStakeLamports === stake ? 'retro-selected' : ''}`}
                                   onClick={() => { setSelectedStakeLamports(stake); setWagerPhase('idle'); playMenuClick(); }}
                                 >
-                                  {formatRawAmount(stake, wagerConfig.asset.decimals)} {wagerConfig.asset.symbol}
+                                  {localize(formatRawAmount(stake, wagerConfig.asset.decimals))} {localize(wagerConfig.asset.symbol)}
                                 </button>
-                              ))}
+                              )))}
                             </div>
 
                             <div className="lobby-wager-status">
                               <div>
-                                {wagerCostCopy.map((line) => (
-                                  <p key={line}>{line}</p>
-                                ))}
+                                {localize(wagerCostCopy.map((line) => (
+                                  <p key={line}>{localize(line)}</p>
+                                )))}
                               </div>
-                              {wagerConfig.holdGate.enabled && wallet.address && (
-                                <p>
-                                  CA: {wagerHoldBalance.loading ? 'LOADING' : `${holdBalanceLabel} ${wagerConfig.holdGate.symbol}`} / {holdRequiredLabel} {wagerConfig.holdGate.symbol}
+                              {localize(wagerConfig.holdGate.enabled && wallet.address && (
+                                <p>{translateText("CA: ")}{localize(wagerHoldBalance.loading ? 'LOADING' : `${holdBalanceLabel} ${wagerConfig.holdGate.symbol}`)} / {localize(holdRequiredLabel)} {localize(wagerConfig.holdGate.symbol)}
                                 </p>
-                              )}
-                              <p>
-                                CAP: {formatRawAmount(wagerConfig.maxStakeLamports, wagerConfig.asset.decimals)} {wagerConfig.asset.symbol} • {wagerClusterLabel}
+                              ))}
+                              <p>{translateText("CAP: ")}{localize(formatRawAmount(wagerConfig.maxStakeLamports, wagerConfig.asset.decimals))} {localize(wagerConfig.asset.symbol)} • {localize(wagerClusterLabel)}
                               </p>
                               <p className={wagerBlocker ? 'is-error' : 'is-ready'}>
-                                {wagerBlocker ?? `${wagerStart.label} • ESCROW READY`}
+                                {localize(wagerBlocker ?? `${wagerStart.label} • ESCROW READY`)}
                               </p>
-                              {(wagerError || wallet.error) && (
-                                <p className="is-error">{wagerError || wallet.error}</p>
-                              )}
-                              <a href="/funds" className="underline">Recover a payment, claim winnings, or get a refund →</a>
+                              {localize((wagerError || wallet.error) && (
+                                <p className="is-error">{localize(wagerError || wallet.error)}</p>
+                              ))}
+                              <a href="/funds" className="underline">{translateText("Recover a payment, claim winnings, or get a refund →")}</a>
                             </div>
                           </div>
-                        )}
+                        ))}
                       </div>
 
-                      <details className="lobby-directory-column"><summary>Browse custom lobbies</summary>
+                      <details className="lobby-directory-column"><summary>{translateText("Browse custom lobbies")}</summary>
                         <div className="lobby-subhead">
-                          <span>CUSTOM LOBBIES</span>
-                          <span>{lobbyFilter.toUpperCase()}</span>
+                          <span>{translateText("CUSTOM LOBBIES")}</span>
+                          <span>{localize(lobbyFilter.toUpperCase())}</span>
                         </div>
                         <div className="lobby-filter-row">
-                          {(['all', 'free', 'wager'] as LobbyFilter[]).map((filter) => (
+                          {localize((['all', 'free', 'wager'] as LobbyFilter[]).map((filter) => (
                             <button
                               key={filter}
                               className={`retro-btn retro-btn-small ${lobbyFilter === filter ? 'retro-selected' : ''}`}
                               onClick={() => { setLobbyFilter(filter); playMenuClick(); }}
                             >
-                              {filter.toUpperCase()}
+                              {localize(filter.toUpperCase())}
                             </button>
-                          ))}
+                          )))}
                         </div>
 
-                        <div className="lobby-list" aria-label="Saved lobbies">
-                          {filteredLobbies.length === 0 ? (
+                        <div className="lobby-list" aria-label={translateText("Saved lobbies")}>
+                          {localize(filteredLobbies.length === 0 ? (
                             <div className="lobby-empty-state">
-                              <span>{lobbyDirectoryError ?? 'NO WAITING LOBBIES LIVE'}</span>
+                              <span>{localize(lobbyDirectoryError ?? 'NO WAITING LOBBIES LIVE')}</span>
                             </div>
                           ) : (
                             filteredLobbies.map((lobby) => (
@@ -1039,12 +1013,11 @@ export default function Index() {
                                   <div className="lobby-card-title-row">
                                     <p>{lobby.name}</p>
                                     <span className={`lobby-badge is-${lobby.matchType}`}>
-                                      {lobby.matchType === 'free' ? 'FREE' : lobby.stakeLabel ?? 'WAGER'}
+                                      {localize(lobby.matchType === 'free' ? 'FREE' : lobby.stakeLabel ?? 'WAGER')}
                                     </span>
                                   </div>
                                   <p className="lobby-card-meta">
-                                    {lobby.hostName} • {lobby.formatLabel ?? chessFormatByTimeControl(lobby.timeControl).label} • {lobby.access.toUpperCase()} • HOST WHITE
-                                  </p>
+                                    {localize(lobby.hostName)} • {localize(lobby.formatLabel ?? chessFormatByTimeControl(lobby.timeControl).label)} • {localize(lobby.access.toUpperCase())}{translateText(" • HOST WHITE")}</p>
                                 </div>
                                 <div className="lobby-card-actions">
                                   <button
@@ -1052,48 +1025,48 @@ export default function Index() {
                                     onClick={() => void handleOpenLobby(lobby)}
                                     disabled={pendingLobbyId === lobby.id}
                                   >
-                                    {pendingLobbyId === lobby.id ? 'JOIN...' : lobby.matchType === 'wager' ? 'WAGER' : 'JOIN'}
+                                    {localize(pendingLobbyId === lobby.id ? 'JOIN...' : lobby.matchType === 'wager' ? 'WAGER' : 'JOIN')}
                                   </button>
                                   <button
                                     className="retro-btn retro-btn-small lobby-copy-btn"
                                     onClick={() => void handleCopyLobbyInvite(lobby)}
                                   >
-                                    {copiedLobbyGameId === lobby.gameId ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-                                    <span>{copiedLobbyGameId === lobby.gameId ? 'COPIED' : 'COPY'}</span>
+                                    {localize(copiedLobbyGameId === lobby.gameId ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />)}
+                                    <span>{localize(copiedLobbyGameId === lobby.gameId ? 'COPIED' : 'COPY')}</span>
                                   </button>
                                 </div>
                               </div>
                             ))
-                          )}
+                          ))}
                         </div>
-                        {lobbyDirectoryError && filteredLobbies.length > 0 && (
+                        {localize(lobbyDirectoryError && filteredLobbies.length > 0 && (
                           <p className="text-[7px] text-destructive text-center font-retro">
-                            {lobbyDirectoryError}
+                            {localize(lobbyDirectoryError)}
                           </p>
-                        )}
+                        ))}
                       </details>
                     </div>
                   ) : (
                     <>
                       <div className="lobby-subhead">
-                        <span>CUSTOM LOBBY</span>
-                        <span>{lobbyMatchType.toUpperCase()}</span>
+                        <span>{translateText("CUSTOM LOBBY")}</span>
+                        <span>{localize(lobbyMatchType.toUpperCase())}</span>
                       </div>
                       <label className="lobby-form-field">
-                        <span>LOBBY NAME</span>
+                        <span>{translateText("LOBBY NAME")}</span>
                         <input
                           className="retro-input"
                           value={lobbyName}
                           onChange={(event) => setLobbyName(event.target.value.slice(0, 24))}
                           onBlur={() => setLobbyName(cleanLobbyName(lobbyName, playerDisplayName))}
                           maxLength={24}
-                          aria-label="Lobby name"
+                          aria-label={translateText("Lobby name")}
                         />
                       </label>
 
                       <div className="lobby-create-grid">
                         <div className="lobby-form-field">
-                          <span>TYPE</span>
+                          <span>{translateText("TYPE")}</span>
                           <div className="lobby-choice-row">
                             <button
                               className={`retro-btn retro-btn-small ${lobbyMatchType === 'free' ? 'retro-selected' : ''}`}
@@ -1105,9 +1078,7 @@ export default function Index() {
                                 setWagerError(null);
                                 playMenuClick();
                               }}
-                            >
-                              FREE
-                            </button>
+                            >{translateText("FREE")}</button>
                             <button
                               className={`retro-btn retro-btn-small ${lobbyMatchType === 'wager' ? 'retro-selected' : ''}`}
                               onClick={() => {
@@ -1117,16 +1088,14 @@ export default function Index() {
                                 setWagerError(null);
                                 playMenuClick();
                               }}
-                            >
-                              WAGER
-                            </button>
+                            >{translateText("WAGER")}</button>
                           </div>
                         </div>
 
                         <div className="lobby-form-field">
-                          <span>ACCESS</span>
+                          <span>{translateText("ACCESS")}</span>
                           <div className="lobby-choice-row">
-                            {(['open', 'invite', 'holder'] as PvpLobbyAccess[]).map((access) => {
+                            {localize((['open', 'invite', 'holder'] as PvpLobbyAccess[]).map((access) => {
                               const disabled = lobbyMatchType === 'free' && access === 'holder';
                               return (
                                 <button
@@ -1135,41 +1104,41 @@ export default function Index() {
                                   onClick={() => { setLobbyAccess(access); setCreateError(null); playMenuClick(); }}
                                   disabled={disabled}
                                 >
-                                  {access === 'open' ? 'OPEN' : access === 'invite' ? 'INVITE' : 'HOLDER'}
+                                  {localize(access === 'open' ? 'OPEN' : access === 'invite' ? 'INVITE' : 'HOLDER')}
                                 </button>
                               );
-                            })}
+                            }))}
                           </div>
                         </div>
 
                         <div className="lobby-form-field is-wide">
-                          <span>FORMAT</span>
-                          <div className="lobby-format-family-grid" aria-label="Lobby format">
-                            {formatFamilies.map((family) => (
+                          <span>{translateText("FORMAT")}</span>
+                          <div className="lobby-format-family-grid" aria-label={translateText("Lobby format")}>
+                            {localize(formatFamilies.map((family) => (
                               <div className="lobby-format-family" key={family}>
-                                <span>{chessFormatFamilyLabel(family)}</span>
+                                <span>{localize(chessFormatFamilyLabel(family))}</span>
                                 <div className="lobby-format-row">
-                                  {CHESS_TIME_CONTROL_FORMATS.filter((format) => format.family === family).map((format) => (
+                                  {localize(CHESS_TIME_CONTROL_FORMATS.filter((format) => format.family === family).map((format) => (
                                     <button
                                       key={format.id}
                                       className={`retro-btn retro-btn-small ${lobbyFormatId === format.id ? 'retro-selected' : ''}`}
                                       onClick={() => { setLobbyFormatId(format.id); setCreateError(null); setWagerError(null); playMenuClick(); }}
                                     >
-                                      <span>{format.timeControl}</span>
+                                      <span>{localize(format.timeControl)}</span>
                                     </button>
-                                  ))}
+                                  )))}
                                 </div>
                               </div>
-                            ))}
+                            )))}
                           </div>
                         </div>
 
                       </div>
 
-                      {lobbyMatchType === 'wager' && (
+                      {localize(lobbyMatchType === 'wager' && (
                         <div className="space-y-3">
                           <div className="flex flex-wrap items-center justify-center gap-2">
-                            {wallet.address ? (
+                            {localize(wallet.address ? (
                               <>
                                 <button
                                   className="retro-btn retro-btn-small"
@@ -1178,23 +1147,21 @@ export default function Index() {
                                     void wagerHoldBalance.refresh();
                                   }}
                                 >
-                                  {wallet.refreshing || wagerHoldBalance.refreshing
+                                  {localize(wallet.refreshing || wagerHoldBalance.refreshing
                                     ? 'BAL...'
-                                    : `${wallet.shortAddress} • ${wallet.balanceEth?.toFixed(4) ?? '--'} ETH • ${wagerClusterLabel}`}
+                                    : `${wallet.shortAddress} • ${wallet.balanceEth?.toFixed(4) ?? '--'} ETH • ${wagerClusterLabel}`)}
                                 </button>
-                                <button className="retro-btn retro-btn-small" onClick={wallet.disconnect}>
-                                  DISCONNECT
-                                </button>
+                                <button className="retro-btn retro-btn-small" onClick={wallet.disconnect}>{translateText("DISCONNECT")}</button>
                               </>
                             ) : (
                               <button className="retro-btn retro-btn-small" onClick={wallet.connect} disabled={wallet.connecting}>
-                                {wallet.connecting ? 'CONNECTING...' : 'CONNECT WALLET'}
+                                {localize(wallet.connecting ? 'CONNECTING...' : 'CONNECT WALLET')}
                               </button>
-                            )}
+                            ))}
                           </div>
 
                           <div className="lobby-stake-row">
-                            {wagerConfig.presetStakeLamports.map((stake) => (
+                            {localize(wagerConfig.presetStakeLamports.map((stake) => (
                               <button
                                 key={stake.toString()}
                                 className={`retro-btn retro-btn-small ${lobbyStakeMode === 'preset' && selectedStakeLamports === stake ? 'retro-selected' : ''}`}
@@ -1206,13 +1173,13 @@ export default function Index() {
                                   playMenuClick();
                                 }}
                               >
-                                {formatRawAmount(stake, wagerConfig.asset.decimals)} {wagerConfig.asset.symbol}
+                                {localize(formatRawAmount(stake, wagerConfig.asset.decimals))} {localize(wagerConfig.asset.symbol)}
                               </button>
-                            ))}
+                            )))}
                           </div>
 
                           <label className="lobby-form-field">
-                            <span>CUSTOM</span>
+                            <span>{translateText("CUSTOM")}</span>
                             <div className="lobby-custom-wager">
                               <input
                                 className="retro-input"
@@ -1223,98 +1190,91 @@ export default function Index() {
                                   setWagerPhase('idle');
                                   setWagerError(null);
                                 }}
-                                placeholder={`0.05 ${wagerConfig.asset.symbol}`}
-                                aria-label="Custom wager amount"
+                                placeholder={localize(`0.05 ${wagerConfig.asset.symbol}`)}
+                                aria-label={translateText("Custom wager amount")}
                               />
                               <button
                                 className={`retro-btn retro-btn-small ${lobbyStakeMode === 'custom' ? 'retro-selected' : ''}`}
                                 onClick={() => { setLobbyStakeMode('custom'); playMenuClick(); }}
-                              >
-                                USE
-                              </button>
+                              >{translateText("USE")}</button>
                             </div>
                           </label>
 
                           <div className="space-y-1 text-center font-retro">
                             <div className="border border-primary/30 bg-background/40 px-3 py-2 text-left">
-                              {lobbyWagerCostCopy.map((line) => (
+                              {localize(lobbyWagerCostCopy.map((line) => (
                                 <p key={line} className="text-[7px] leading-4 text-foreground">
-                                  {line}
+                                  {localize(line)}
                                 </p>
-                              ))}
+                              )))}
                             </div>
-                            {wagerConfig.holdGate.enabled && wallet.address && (
-                              <p className="text-[7px] text-muted-foreground">
-                                CA: {wagerHoldBalance.loading ? 'LOADING' : `${holdBalanceLabel} ${wagerConfig.holdGate.symbol}`} / {holdRequiredLabel} {wagerConfig.holdGate.symbol}
+                            {localize(wagerConfig.holdGate.enabled && wallet.address && (
+                              <p className="text-[7px] text-muted-foreground">{translateText("CA: ")}{localize(wagerHoldBalance.loading ? 'LOADING' : `${holdBalanceLabel} ${wagerConfig.holdGate.symbol}`)} / {localize(holdRequiredLabel)} {localize(wagerConfig.holdGate.symbol)}
                               </p>
-                            )}
-                            <p className="text-[7px] text-muted-foreground">
-                              CAP: {formatRawAmount(wagerConfig.maxStakeLamports, wagerConfig.asset.decimals)} {wagerConfig.asset.symbol} • {wagerClusterLabel}
+                            ))}
+                            <p className="text-[7px] text-muted-foreground">{translateText("CAP: ")}{localize(formatRawAmount(wagerConfig.maxStakeLamports, wagerConfig.asset.decimals))} {localize(wagerConfig.asset.symbol)} • {localize(wagerClusterLabel)}
                             </p>
                             <p className={`text-[7px] ${lobbyWagerBlocker ? 'text-destructive' : 'text-primary'}`}>
-                              {lobbyWagerBlocker ?? `${lobbyWagerStart.label} • ESCROW READY`}
+                              {localize(lobbyWagerBlocker ?? `${lobbyWagerStart.label} • ESCROW READY`)}
                             </p>
-                            {(wagerError || wallet.error) && (
-                              <p className="text-[7px] text-destructive">{wagerError || wallet.error}</p>
-                            )}
+                            {localize((wagerError || wallet.error) && (
+                              <p className="text-[7px] text-destructive">{localize(wagerError || wallet.error)}</p>
+                            ))}
                           </div>
                         </div>
-                      )}
+                      ))}
 
                       <button
                         className="retro-btn retro-btn-gold lobby-create-button"
                         onClick={handleCreateLobby}
                         disabled={matching || (lobbyMatchType === 'wager' && !!lobbyWagerBlocker)}
                       >
-                        {matching
+                        {localize(matching
                           ? lobbyMatchType === 'wager' ? phaseLabel(wagerPhase) : 'CREATING...'
-                          : 'CREATE + COPY INVITE'}
+                          : 'CREATE + COPY INVITE')}
                       </button>
                     </>
-                  )}
+                  ))}
 
-                  {lobbyCopyError && (
+                  {localize(lobbyCopyError && (
                     <p className="text-[7px] text-destructive text-center font-retro">
-                      {lobbyCopyError}
+                      {localize(lobbyCopyError)}
                     </p>
-                  )}
+                  ))}
 
                 </div>
-              )}
+              ))}
 
               {/* Start button */}
-              {showPrimaryStartButton && (
+              {localize(showPrimaryStartButton && (
                 <div className="text-center pt-2">
                   <button
                     className="retro-btn retro-btn-gold"
                     onClick={handleStart}
                     disabled={matching || (mode === 'pvp' && pvpEntryMode === 'wager' && !!wagerBlocker)}
                   >
-                    {matching
+                    {localize(matching
                       ? pvpEntryMode === 'wager' ? phaseLabel(wagerPhase) : 'MATCHING...'
-                      : mode === 'pvp' ? 'QUICK MATCH' : 'START GAME'}
+                      : mode === 'pvp' ? 'QUICK MATCH' : 'START GAME')}
                   </button>
                 </div>
-              )}
-              {createError && (
+              ))}
+              {localize(createError && (
                 <p className="menu-error-text" role="alert">
-                  {createError}
+                  {localize(createError)}
                 </p>
-              )}
+              ))}
 
               {/* Options & Sound */}
               <div className="flex justify-center gap-3 pt-2">
                 <button
                   className="retro-btn retro-btn-small"
                   onClick={() => { setShowOptions(true); playMenuClick(); }}
-                >
-                  OPTIONS
-                </button>
+                >{translateText("OPTIONS")}</button>
                 <button
                   className="retro-btn retro-btn-small"
                   onClick={toggleSound}
-                >
-                  SOUND: {soundOn ? 'ON' : 'OFF'}
+                >{translateText("SOUND: ")}{localize(soundOn ? 'ON' : 'OFF')}
                 </button>
               </div>
               </div>
@@ -1322,58 +1282,50 @@ export default function Index() {
           ) : (
             /* Options Panel */
             <div className="retro-panel p-6 space-y-4">
-              <p className="text-[10px] font-retro text-primary text-center retro-glow">
-                OPTIONS
-              </p>
+              <p className="text-[10px] font-retro text-primary text-center retro-glow">{translateText("OPTIONS")}</p>
               <div className="space-y-3 text-[8px] font-retro text-foreground">
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span>SOUND FX</span>
+                  <span>{translateText("SOUND FX")}</span>
                   <button onClick={toggleSound} className="text-primary">
-                    {soundOn ? '● ON' : '○ OFF'}
+                    {localize(soundOn ? '● ON' : '○ OFF')}
                   </button>
                 </div>
-                {themesEnabled && (
+                {localize(themesEnabled && (
                   <div className="options-theme-row py-2 border-b border-border/30">
-                    <span>THEME</span>
+                    <span>{translateText("THEME")}</span>
                     <ThemeSelector compact />
                   </div>
-                )}
+                ))}
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span>CAMERA</span>
-                  <span className="text-muted-foreground">DRAG TO ORBIT</span>
+                  <span>{translateText("CAMERA")}</span>
+                  <span className="text-muted-foreground">{translateText("DRAG TO ORBIT")}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span>PIECES</span>
-                  <span className="text-muted-foreground">DRAG OR CLICK</span>
+                  <span>{translateText("PIECES")}</span>
+                  <span className="text-muted-foreground">{translateText("DRAG OR CLICK")}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border/30">
-                  <span>BOARD</span>
-                  <span className="text-muted-foreground">CLASSIC 8 × 8</span>
+                  <span>{translateText("BOARD")}</span>
+                  <span className="text-muted-foreground">{translateText("CLASSIC 8 × 8")}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span>VERSION</span>
-                  <span className="text-muted-foreground">SKY ISLANDS</span>
+                  <span>{translateText("VERSION")}</span>
+                  <span className="text-muted-foreground">{translateText("SKY ISLANDS")}</span>
                 </div>
               </div>
               <div className="text-center pt-2">
                 <button
                   className="retro-btn retro-btn-small"
                   onClick={() => { setShowOptions(false); playMenuClick(); }}
-                >
-                  BACK
-                </button>
+                >{translateText("BACK")}</button>
               </div>
             </div>
-          )}
+          ))}
 
           {/* Footer */}
           <div className="text-center mt-8">
-            <p className="text-muted-foreground text-[6px] tracking-wider">
-              CHESSBLOX • THE SKY ISLANDS
-            </p>
-            <p className="text-muted-foreground text-[6px] mt-1 tracking-wider">
-              A NEW PERSPECTIVE ON A CLASSIC GAME
-            </p>
+            <p className="text-muted-foreground text-[6px] tracking-wider">{translateText("CHESSBLOX • THE SKY ISLANDS")}</p>
+            <p className="text-muted-foreground text-[6px] mt-1 tracking-wider">{translateText("A NEW PERSPECTIVE ON A CLASSIC GAME")}</p>
           </div>
         </div>
       </div>

@@ -3680,3 +3680,27 @@
   color: hsl(var(--retro-gold));
   font-size: 11px;
 }
+
+/* Locale fonts are local fallbacks; language switching does not depend on a font CDN. */
+html[lang="zh-CN"] body,
+html[lang="zh-CN"] button,
+html[lang="zh-CN"] input,
+html[lang="zh-CN"] select,
+html[lang="zh-CN"] textarea,
+html[lang="zh-CN"] h1,
+html[lang="zh-CN"] h2,
+html[lang="zh-CN"] h3 {
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+  letter-spacing: normal;
+}
+.language-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid #28463733; border-radius: 12px; color: #254331; background: #fffdf4f2; box-shadow: 0 2px 0 #24433212; white-space: nowrap; flex-shrink: 0; }
+.language-toggle button { padding: 5px 6px; border-radius: 7px; font: 700 12px/1.3 system-ui, "PingFang SC", "Microsoft YaHei", sans-serif; color: #526254; min-height: 32px; }
+.language-toggle button[aria-pressed="true"] { color: #173e27; background: #e0edcc; }
+.language-toggle button:focus-visible { outline: 2px solid #28774d; outline-offset: 2px; }
+html[lang="zh-CN"] .sky-setup h1 { line-height: 1.2; font-weight: 900; }
+html[lang="zh-CN"] .sky-play { letter-spacing: normal; }
+@media (max-width: 640px) {
+  .sky-world-header { gap: 6px; flex-wrap: wrap; }
+  .language-toggle { gap: 3px; padding: 3px 5px; }
+  .blox-menu-top { flex-wrap: wrap; gap: 10px; }
+}

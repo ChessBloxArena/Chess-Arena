@@ -1,8 +1,10 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
 import { formatUnits } from 'viem';
 import { hasAutomaticQuoteSession, requestAutomaticPayoutQuote, type AutomaticPayoutQuote, type PayoutReviewRequest } from '@/lib/automaticRblx';
 
 export default function RblxEstimate({ request }: { request: PayoutReviewRequest }) {
+  useLanguage();
   const { walletAddress, stakeWei, gameId, signMessage } = request;
   const [quote, setQuote] = useState<AutomaticPayoutQuote | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -30,10 +32,11 @@ export default function RblxEstimate({ request }: { request: PayoutReviewRequest
     const timer = setInterval(() => void refresh(), 1000);
     return () => { cancelled = true; clearTimeout(debounce); clearInterval(timer); };
   }, [walletAddress, stakeWei, gameId, signMessage]);
-  if (!quote || Date.parse(quote.expiresAt) <= now) return <div className="sky-inline-quote"><small>{error || 'Your RBLX quote appears after the first payout setup.'}</small></div>;
+  if (!quote || Date.parse(quote.expiresAt) <= now) return <div className="sky-inline-quote"><small>{localize(error || 'Your RBLX quote appears after the first payout setup.')}</small></div>;
   return <RblxEstimateValue quote={quote}/>;
 }
 
 export function RblxEstimateValue({ quote }: { quote: AutomaticPayoutQuote }) {
-  return <div className="sky-inline-quote" aria-label="Estimated RBLX prize"><div><span>Estimated prize</span><strong>{Number(formatUnits(BigInt(quote.quotedRblxOut), 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })} RBLX</strong></div><small>Minimum {formatUnits(BigInt(quote.minimumRblxOut), 18)} RBLX</small><small>Stock Tokens · Powered by Uniswap Labs</small></div>;
+  useLanguage();
+  return <div className="sky-inline-quote" aria-label={translateText("Estimated RBLX prize")}><div><span>{translateText("Estimated prize")}</span><strong>{localize(Number(formatUnits(BigInt(quote.quotedRblxOut), 18)).toLocaleString(undefined, { maximumFractionDigits: 4 }))}{translateText(" RBLX")}</strong></div><small>{translateText("Minimum ")}{localize(formatUnits(BigInt(quote.minimumRblxOut), 18))}{translateText(" RBLX")}</small><small>{translateText("Stock Tokens · Powered by Uniswap Labs")}</small></div>;
 }

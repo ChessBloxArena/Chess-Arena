@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage, getLanguage } from '@/lib/i18n';
 import { useEffect, useRef, useState } from "react";
 import { Coins, RefreshCcw, Wallet } from "lucide-react";
 import WagerTransactionLinks from "@/components/WagerTransactionLinks";
@@ -71,6 +72,7 @@ export function wagerSettlementPayoutCopy(summary: WagerSettlementSummary, playe
 }
 
 export default function WagerSettlementPanel({ summary, onRefund, onClaimEth, onPrepareRblxSwap, onConvertToRblx, playerColor }: WagerSettlementPanelProps) {
+  useLanguage();
   const [busyAction, setBusyAction] = useState<"refund" | "claim" | "quote" | "swap" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [claimHash, setClaimHash] = useState<Hash | null>(null);
@@ -141,60 +143,58 @@ export default function WagerSettlementPanel({ summary, onRefund, onClaimEth, on
     <div className="mt-5 space-y-3 text-left">
       <div className="border border-primary/40 bg-background/50 p-3">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[8px] font-retro text-primary">{wagerSettlementStatusCopy(summary, playerColor)}</p>
-          <p className="text-[7px] font-retro text-muted-foreground">{summary.stakeLabel}</p>
+          <p className="text-[8px] font-retro text-primary">{localize(wagerSettlementStatusCopy(summary, playerColor))}</p>
+          <p className="text-[7px] font-retro text-muted-foreground">{localize(summary.stakeLabel)}</p>
         </div>
-        <p className="mt-2 text-[7px] font-retro text-foreground">{wagerSettlementPayoutCopy(summary, playerColor)}</p>
-        <p className="mt-2 text-[6px] font-retro text-muted-foreground">RESULT: {summary.resultType.toUpperCase()}</p>
-        {summary.contestId && <p className="mt-1 break-all text-[6px] font-retro text-muted-foreground">CONTEST: {summary.contestId}</p>}
+        <p className="mt-2 text-[7px] font-retro text-foreground">{localize(wagerSettlementPayoutCopy(summary, playerColor))}</p>
+        <p className="mt-2 text-[6px] font-retro text-muted-foreground">{translateText("RESULT: ")}{localize(summary.resultType.toUpperCase())}</p>
+        {localize(summary.contestId && <p className="mt-1 break-all text-[6px] font-retro text-muted-foreground">{translateText("CONTEST: ")}{localize(summary.contestId)}</p>)}
       </div>
 
       <WagerTransactionLinks links={summary.transactionLinks} />
-      {summary.automaticPayoutSignature && <a className="block text-sm underline text-primary" target="_blank" rel="noreferrer" href={robinhoodTransactionUrl(summary.automaticPayoutSignature)}>View automatic payout transaction ↗</a>}
-      {automatic && didWin && !automaticallyPaid && summary.ethFallbackAt && <p className="text-sm text-muted-foreground">ETH recovery available after {new Date(summary.ethFallbackAt).toLocaleTimeString()}. Open My funds to check the latest on-chain status.</p>}
-      {claimHash && (
-        <a className="block text-center text-[6px] font-retro text-primary underline" href={robinhoodTransactionUrl(claimHash)} target="_blank" rel="noreferrer">
-          ETH CLAIM TX: {claimHash.slice(0, 12)}…
+      {localize(summary.automaticPayoutSignature && <a className="block text-sm underline text-primary" target="_blank" rel="noreferrer" href={robinhoodTransactionUrl(summary.automaticPayoutSignature)}>{translateText("View automatic payout transaction ↗")}</a>)}
+      {localize(automatic && didWin && !automaticallyPaid && summary.ethFallbackAt && <p className="text-sm text-muted-foreground">{translateText("ETH recovery available after ")}{localize(new Date(summary.ethFallbackAt).toLocaleTimeString(getLanguage()))}{translateText(". Open My funds to check the latest on-chain status.")}</p>)}
+      {localize(claimHash && (
+        <a className="block text-center text-[6px] font-retro text-primary underline" href={robinhoodTransactionUrl(claimHash)} target="_blank" rel="noreferrer">{translateText("ETH CLAIM TX: ")}{localize(claimHash.slice(0, 12))}…
         </a>
-      )}
-      {swapHash && (
-        <a className="block text-center text-[6px] font-retro text-retro-gold underline" href={robinhoodTransactionUrl(swapHash)} target="_blank" rel="noreferrer">
-          RBLX SWAP TX: {swapHash.slice(0, 12)}…
+      ))}
+      {localize(swapHash && (
+        <a className="block text-center text-[6px] font-retro text-retro-gold underline" href={robinhoodTransactionUrl(swapHash)} target="_blank" rel="noreferrer">{translateText("RBLX SWAP TX: ")}{localize(swapHash.slice(0, 12))}…
         </a>
-      )}
+      ))}
 
-      {canConvertToRblx && (
-        <section aria-label="Convert winnings to RBLX" className="space-y-4 rounded-xl border border-primary/30 bg-card p-4 text-sm leading-5">
-          <div><h3 className="font-bold text-base">Keep your ETH or swap to RBLX</h3><p className="mt-1 text-muted-foreground">RBLX is a Robinhood token linked to Roblox stock. It is a tokenized debt security, not Robux or a share of Roblox.</p></div>
-          <label className="flex items-start gap-3"><input className="mt-1" type="checkbox" checked={eligibleForRblx} onChange={(event) => { setEligibleForRblx(event.target.checked); setQuote(null); }} /><span>I confirm I am eligible to receive Robinhood Stock Tokens in my jurisdiction.</span></label>
-          <label className="flex items-start gap-3"><input className="mt-1" type="checkbox" checked={uniswapTermsAccepted} onChange={(event) => { setUniswapTermsAccepted(event.target.checked); setQuote(null); }} /><span>I agree to the <a className="underline text-primary" target="_blank" rel="noreferrer" href="https://support.uniswap.org/hc/en-us/articles/30935100859661">Uniswap Terms of Service</a> and <a className="underline text-primary" target="_blank" rel="noreferrer" href="https://support.uniswap.org/hc/en-us/articles/30934457771405">Privacy Policy</a>.</span></label>
-          <button className="retro-btn retro-btn-small" disabled={!canRequestQuote} onClick={() => void runAction("quote", async () => { setQuote(null); setQuote(await onPrepareRblxSwap(claimHash!)); })}>{busyAction === "quote" ? "Getting quote…" : quote ? "Refresh RBLX quote" : "Get RBLX quote"}</button>
-          {quote && <div aria-label="Swap quote" className="space-y-3 border-t border-border pt-4">
+      {localize(canConvertToRblx && (
+        <section aria-label={translateText("Convert winnings to RBLX")} className="space-y-4 rounded-xl border border-primary/30 bg-card p-4 text-sm leading-5">
+          <div><h3 className="font-bold text-base">{translateText("Keep your ETH or swap to RBLX")}</h3><p className="mt-1 text-muted-foreground">{translateText("RBLX is a Robinhood token linked to Roblox stock. It is a tokenized debt security, not Robux or a share of Roblox.")}</p></div>
+          <label className="flex items-start gap-3"><input className="mt-1" type="checkbox" checked={eligibleForRblx} onChange={(event) => { setEligibleForRblx(event.target.checked); setQuote(null); }} /><span>{translateText("I confirm I am eligible to receive Robinhood Stock Tokens in my jurisdiction.")}</span></label>
+          <label className="flex items-start gap-3"><input className="mt-1" type="checkbox" checked={uniswapTermsAccepted} onChange={(event) => { setUniswapTermsAccepted(event.target.checked); setQuote(null); }} /><span>{translateText("I agree to the ")}<a className="underline text-primary" target="_blank" rel="noreferrer" href="https://support.uniswap.org/hc/en-us/articles/30935100859661">{translateText("Uniswap Terms of Service")}</a>{translateText(" and ")}<a className="underline text-primary" target="_blank" rel="noreferrer" href="https://support.uniswap.org/hc/en-us/articles/30934457771405">{translateText("Privacy Policy")}</a>.</span></label>
+          <button className="retro-btn retro-btn-small" disabled={!canRequestQuote} onClick={() => void runAction("quote", async () => { setQuote(null); setQuote(await onPrepareRblxSwap(claimHash!)); })}>{localize(busyAction === "quote" ? "Getting quote…" : quote ? "Refresh RBLX quote" : "Get RBLX quote")}</button>
+          {localize(quote && <div aria-label={translateText("Swap quote")} className="space-y-3 border-t border-border pt-4">
             <dl className="space-y-2">
-              <div className="flex justify-between gap-3"><dt>You pay</dt><dd className="font-bold">{formatEther(BigInt(quote.transaction.value))} ETH</dd></div>
-              <div className="flex justify-between gap-3"><dt>Estimated receive</dt><dd className="break-all text-right font-bold">{formatUnits(BigInt(quote.quotedRblxOut), 18)} RBLX</dd></div>
-              <div className="flex justify-between gap-3"><dt>Minimum receive</dt><dd className="break-all text-right font-bold">{formatUnits(BigInt(quote.minimumRblxOut), 18)} RBLX</dd></div>
-              <div className="flex justify-between gap-3"><dt>Slippage limit</dt><dd>{quote.slippageBps / 100}%</dd></div>
-              <div className="flex justify-between gap-3"><dt>Estimated network fee</dt><dd>{quote.estimatedGasWei ? `${formatEther(BigInt(quote.estimatedGasWei))} ETH` : "Shown in wallet"}</dd></div>
+              <div className="flex justify-between gap-3"><dt>{translateText("You pay")}</dt><dd className="font-bold">{localize(formatEther(BigInt(quote.transaction.value)))}{translateText(" ETH")}</dd></div>
+              <div className="flex justify-between gap-3"><dt>{translateText("Estimated receive")}</dt><dd className="break-all text-right font-bold">{localize(formatUnits(BigInt(quote.quotedRblxOut), 18))}{translateText(" RBLX")}</dd></div>
+              <div className="flex justify-between gap-3"><dt>{translateText("Minimum receive")}</dt><dd className="break-all text-right font-bold">{localize(formatUnits(BigInt(quote.minimumRblxOut), 18))}{translateText(" RBLX")}</dd></div>
+              <div className="flex justify-between gap-3"><dt>{translateText("Slippage limit")}</dt><dd>{localize(quote.slippageBps / 100)}%</dd></div>
+              <div className="flex justify-between gap-3"><dt>{translateText("Estimated network fee")}</dt><dd>{localize(quote.estimatedGasWei ? `${formatEther(BigInt(quote.estimatedGasWei))} ETH` : "Shown in wallet")}</dd></div>
             </dl>
-            <p className="break-all text-xs text-muted-foreground">Robinhood Chain · Receive in {quote.walletAddress}</p>
-            <p className="text-xs text-muted-foreground">The network fee is additional. Your wallet shows the final fee before you approve.</p>
-            <p role="status">{quoteExpired ? "Quote expired. Refresh it before swapping." : `Quote expires in ${Math.max(0, Math.ceil((Date.parse(quote.expiresAt) - now) / 1000))} seconds.`}</p>
-            <button className="retro-btn retro-btn-small retro-btn-gold w-full" disabled={!canRequestQuote || quoteExpired} onClick={() => void runAction("swap", () => onConvertToRblx(claimHash!, quote))}><Coins size={14} /> {busyAction === "swap" ? "Confirm in wallet…" : "Confirm ETH → RBLX swap"}</button>
-          </div>}
-          <p className="text-xs text-muted-foreground">Powered by Uniswap Labs. Requesting a quote does not send a swap. You can keep your ETH at any time.</p>
+            <p className="break-all text-xs text-muted-foreground">{translateText("Robinhood Chain · Receive in ")}{localize(quote.walletAddress)}</p>
+            <p className="text-xs text-muted-foreground">{translateText("The network fee is additional. Your wallet shows the final fee before you approve.")}</p>
+            <p role="status">{localize(quoteExpired ? "Quote expired. Refresh it before swapping." : `Quote expires in ${Math.max(0, Math.ceil((Date.parse(quote.expiresAt) - now) / 1000))} seconds.`)}</p>
+            <button className="retro-btn retro-btn-small retro-btn-gold w-full" disabled={!canRequestQuote || quoteExpired} onClick={() => void runAction("swap", () => onConvertToRblx(claimHash!, quote))}><Coins size={14} /> {localize(busyAction === "swap" ? "Confirm in wallet…" : "Confirm ETH → RBLX swap")}</button>
+          </div>)}
+          <p className="text-xs text-muted-foreground">{translateText("Powered by Uniswap Labs. Requesting a quote does not send a swap. You can keep your ETH at any time.")}</p>
         </section>
-      )}
+      ))}
 
-      {claimHash && !swapHash && didWin && summary.state === "settled" && <p className="text-center text-[6px] font-retro text-primary">{rblxConversionEnabled() ? "ETH CLAIMED. KEEP IT OR CONVERT IT TO RBLX." : "ETH CLAIM CONFIRMED."}</p>}
-      {swapHash && <p className="text-center text-[6px] font-retro text-retro-gold">RBLX SENT TO YOUR WALLET.</p>}
+      {localize(claimHash && !swapHash && didWin && summary.state === "settled" && <p className="text-center text-[6px] font-retro text-primary">{localize(rblxConversionEnabled() ? "ETH CLAIMED. KEEP IT OR CONVERT IT TO RBLX." : "ETH CLAIM CONFIRMED.")}</p>)}
+      {localize(swapHash && <p className="text-center text-[6px] font-retro text-retro-gold">{translateText("RBLX SENT TO YOUR WALLET.")}</p>)}
 
       <div className="flex flex-wrap justify-center gap-2">
-        {canRefund && <button className="retro-btn retro-btn-small" disabled={busyAction !== null} onClick={() => runAction("refund", onRefund)}><RefreshCcw size={12} /> {busyAction === "refund" ? "REFUNDING" : "REFUND"}</button>}
-        {canClaim && <button className="retro-btn retro-btn-small" disabled={busyAction !== null} onClick={() => runAction("claim", onClaimEth)}><Wallet size={12} /> {busyAction === "claim" ? "CLAIMING" : canClaimRefund ? "CLAIM REFUND" : "CLAIM ETH"}</button>}
+        {localize(canRefund && <button className="retro-btn retro-btn-small" disabled={busyAction !== null} onClick={() => runAction("refund", onRefund)}><RefreshCcw size={12} /> {localize(busyAction === "refund" ? "REFUNDING" : "REFUND")}</button>)}
+        {localize(canClaim && <button className="retro-btn retro-btn-small" disabled={busyAction !== null} onClick={() => runAction("claim", onClaimEth)}><Wallet size={12} /> {localize(busyAction === "claim" ? "CLAIMING" : canClaimRefund ? "CLAIM REFUND" : "CLAIM ETH")}</button>)}
       </div>
 
-      {actionError && <p role="alert" className="break-words text-center text-sm text-destructive">{actionError}</p>}
+      {localize(actionError && <p role="alert" className="break-words text-center text-sm text-destructive">{localize(actionError)}</p>)}
     </div>
   );
 }

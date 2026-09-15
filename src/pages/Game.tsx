@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import GameActionMenu from '@/components/GameActionMenu';
 import { ArrowLeft, Music2, Volume2, VolumeX, Pause, Flag, Undo2, RotateCcw } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -46,6 +47,7 @@ function createCpuMatchRequestId(): string {
 }
 
 export default function Game() {
+  const language = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const routeConfig = normalizeLocalGameConfig(location.state);
@@ -188,7 +190,7 @@ export default function Game() {
   const hasNoMoves = moveCount === 0;
   const lastMove = history[moveCount - 1];
   const lastMoveDescription = moveHistory.length > 0
-    ? describeMove(moveHistory[moveHistory.length - 1])
+    ? describeMove(moveHistory[moveHistory.length - 1], language)
     : null;
 
   useEffect(() => {
@@ -272,7 +274,7 @@ export default function Game() {
   const playerTurnStatus = isGameOver
     ? 'MATCH ENDED'
     : mode === 'cpu' && currentTurn === 'b'
-      ? cpuThinking ? 'CPU THINKING' : `${character.name} TO MOVE`
+      ? cpuThinking ? 'CPU THINKING' : `${translateText(character.name)} TO MOVE`
       : currentTurn === 'w'
         ? `${playerName} TO MOVE`
         : 'PLAYER 2 TO MOVE';
@@ -295,8 +297,8 @@ export default function Game() {
     },
     {
       color: 'b',
-      name: mode === 'cpu' ? character.name : 'PLAYER 2',
-      label: mode === 'cpu' ? `CPU ${difficulty.toUpperCase()}` : 'LOCAL',
+      name: translateText(mode === 'cpu' ? character.name : 'PLAYER 2'),
+      label: mode === 'cpu' ? `CPU ${translateText(difficulty.toUpperCase())}` : 'LOCAL',
       active: currentTurn === 'b',
       tone: mode === 'cpu' ? 'cpu' : 'opponent',
     },
@@ -382,27 +384,24 @@ export default function Game() {
       <div className="game-topbar retro-panel border-t-0 border-x-0 z-10">
         <div className="game-topbar-left">
           <button className="retro-btn retro-btn-small" onClick={handleBack}>
-            <ArrowLeft size={14}/> MENU
-          </button>
+            <ArrowLeft size={14}/>{translateText(" MENU")}</button>
         </div>
         <div className="game-title-block">
-          <p className="stone-label text-[8px] font-retro">CHESSBLOX</p>
+          <p className="stone-label text-[8px] font-retro">{translateText("CHESSBLOX")}</p>
           <p className="text-[6px] font-retro text-muted-foreground mt-0.5">
-            {mode === 'cpu' ? `${playerName} VS ${character.name} • ${difficulty.toUpperCase()}` : `${playerName} • LOCAL MATCH`}
+            {localize(mode === 'cpu' ? `${playerName} VS ${translateText(character.name)} • ${translateText(difficulty.toUpperCase())}` : `${playerName} • LOCAL MATCH`)}
           </p>
         </div>
         <div className="game-topbar-actions">
           <button className="retro-btn retro-btn-small" onClick={() => { setPauseOpen(true); playMenuClick(); }}>
-            <Pause size={14}/> PAUSE
-          </button>
+            <Pause size={14}/>{translateText(" PAUSE")}</button>
 
           <button
             className="retro-btn retro-btn-small"
             onClick={() => { undo(); playMenuClick(); }}
             disabled={moveCount === 0 || isGameOver || cpuThinking}
           >
-            <Undo2 size={14}/> UNDO
-          </button>
+            <Undo2 size={14}/>{translateText(" UNDO")}</button>
           <GameActionMenu musicOn={musicOn} sfxOn={sfxOn} onMusic={toggleMusic} onSfx={toggleSfx}
             onSurrender={() => { setSurrenderConfirmOpen(true); playMenuClick(); }}
             surrenderDisabled={isGameOver || cpuThinking || (mode === 'cpu' && currentTurn === 'b')}
@@ -437,26 +436,26 @@ export default function Game() {
           key={capturePulseKey ?? 'captured-idle'}
           className={`captured-pieces-stack ${capturePulseKey ? 'is-pulsing' : ''}`}
         >
-          {capturedPieces.w.length > 0 && (
+          {localize(capturedPieces.w.length > 0 && (
             <div className="retro-panel px-2 py-1 mb-1">
-              <p className="text-[6px] font-retro text-muted-foreground mb-0.5">WHITE CAPTURED</p>
+              <p className="text-[6px] font-retro text-muted-foreground mb-0.5">{translateText("WHITE CAPTURED")}</p>
               <p className="text-sm">
-                {capturedPieces.w.map((p, i) => (
-                  <span key={i} className="text-foreground opacity-70">{PIECE_SYMBOLS[p]}</span>
-                ))}
+                {localize(capturedPieces.w.map((p, i) => (
+                  <span key={i} className="text-foreground opacity-70">{localize(PIECE_SYMBOLS[p])}</span>
+                )))}
               </p>
             </div>
-          )}
-          {capturedPieces.b.length > 0 && (
+          ))}
+          {localize(capturedPieces.b.length > 0 && (
             <div className="retro-panel px-2 py-1">
-              <p className="text-[6px] font-retro text-muted-foreground mb-0.5">BLACK CAPTURED</p>
+              <p className="text-[6px] font-retro text-muted-foreground mb-0.5">{translateText("BLACK CAPTURED")}</p>
               <p className="text-sm">
-                {capturedPieces.b.map((p, i) => (
-                  <span key={i} className="text-foreground opacity-70">{PIECE_SYMBOLS[p]}</span>
-                ))}
+                {localize(capturedPieces.b.map((p, i) => (
+                  <span key={i} className="text-foreground opacity-70">{localize(PIECE_SYMBOLS[p])}</span>
+                )))}
               </p>
             </div>
-          )}
+          ))}
         </div>
 
         <MoveHistoryPanel history={history} moves={moveHistory} pulseKey={movePulseKey} />
@@ -465,64 +464,60 @@ export default function Game() {
 
         <MatchIntroOverlay
           show={showMatchIntro && !pauseOpen && !isGameOver}
-          title="MATCH START"
-          matchup={mode === 'cpu' ? `${playerName} VS ${character.name}` : `${playerName} VS PLAYER 2`}
-          subtitle={mode === 'cpu' ? `CPU ${difficulty.toUpperCase()}` : 'LOCAL MATCH'}
+          title={translateText("MATCH START")}
+          matchup={mode === 'cpu' ? `${playerName} VS ${translateText(character.name)}` : `${playerName} VS PLAYER 2`}
+          subtitle={localize(mode === 'cpu' ? `CPU ${translateText(difficulty.toUpperCase())}` : 'LOCAL MATCH')}
         />
 
 
 
-        {pendingPromotion && (
+        {localize(pendingPromotion && (
           <PromotionPicker
             color={pendingPromotion.color}
             onSelect={choosePromotion}
             onCancel={cancelPromotion}
           />
-        )}
+        ))}
 
-        {mode === 'cpu' && cpuTaunt && (
+        {localize(mode === 'cpu' && cpuTaunt && (
           <div className="cpu-taunt-anchor">
             <div className="cpu-taunt-bubble">
               <p className={`text-[11px] font-retro ${bubbleTextClass} leading-relaxed text-center`} style={bubbleTextStyle}>
-                <TypewriterText text={cpuTaunt} speed={40} />
+                <TypewriterText text={localize(cpuTaunt)} speed={40} />
               </p>
             </div>
           </div>
-        )}
+        ))}
 
-        {isGameOver && (
+        {localize(isGameOver && (
           <div className="game-over-overlay">
             <div className="game-over-panel retro-panel p-8 text-center retro-slide-up">
               <div className="endgame-burst" aria-hidden="true" />
               <p className="text-lg font-retro text-retro-gold retro-glow-gold mb-4">
-                {resignedBy ? 'SURRENDER!' : isCheckmate ? 'CHECKMATE!' : 'DRAW!'}
+                {localize(resignedBy ? 'SURRENDER!' : isCheckmate ? 'CHECKMATE!' : 'DRAW!')}
               </p>
               <p className="text-[8px] font-retro text-foreground mb-6">
-                {resignedBy
+                {localize(resignedBy
                   ? `${resignedBy === 'w' ? 'WHITE' : 'BLACK'} SURRENDERED. ${resignedBy === 'w' ? 'BLACK' : 'WHITE'} WINS!`
                   : isCheckmate
                     ? mode === 'cpu'
                       ? currentTurn === 'w' ? character.winText : character.loseText
                       : `${currentTurn === 'w' ? 'BLACK' : 'WHITE'} WINS!`
-                    : drawReason ?? 'THE BATTLE ENDS IN A DRAW'}
+                    : drawReason ?? 'THE BATTLE ENDS IN A DRAW')}
               </p>
               <div className="flex gap-3 justify-center">
-                <button className="retro-btn retro-btn-gold" onClick={() => { startNewGame(); playMenuClick(); }}>
-                  REMATCH
-                </button>
-                <button className="retro-btn" onClick={handleBack}>
-                  MENU
-                </button>
+                <button className="retro-btn retro-btn-gold" onClick={() => { startNewGame(); playMenuClick(); }}>{translateText("REMATCH")}</button>
+                <button className="retro-btn" onClick={handleBack}>{translateText("MENU")}</button>
               </div>
             </div>
           </div>
-        )}
+        ))}
       </div>
 
       <GamePausePanel
         open={pauseOpen}
-        title={mode === 'cpu' ? `VS ${character.name}` : 'PLAYER VS PLAYER'}
-        subtitle={mode === 'cpu' ? `${playerName} • ${difficulty.toUpperCase()}` : `${playerName} • LOCAL MATCH`}
+        title={localize(mode === 'cpu' ? `VS ${translateText(character.name)}` : 'PLAYER VS PLAYER')}
+        subtitle={localize(mode === 'cpu' ? `${playerName} • ${translateText(difficulty.toUpperCase())}` : `${playerName} • LOCAL MATCH`)}
         status={resignedBy ? 'SURRENDER' : isGameOver ? (isCheckmate ? 'CHECKMATE' : 'DRAW') : statusMessage.toUpperCase()}
         moves={moveCount}
         musicOn={musicOn}
@@ -536,9 +531,9 @@ export default function Game() {
 
       <ConfirmActionDialog
         open={surrenderConfirmOpen}
-        title="SURRENDER MATCH?"
+        title={translateText("SURRENDER MATCH?")}
         message="This ends the current game and gives the win to the other side."
-        confirmLabel="SURRENDER"
+        confirmLabel={translateText("SURRENDER")}
         onCancel={() => { setSurrenderConfirmOpen(false); playMenuClick(); }}
         onConfirm={() => {
           playMenuClick();
@@ -558,21 +553,20 @@ export default function Game() {
           />
           <div>
             <p className="game-status-title text-primary">
-              {statusMessage}
+              {localize(statusMessage)}
             </p>
-            {cpuThinking && (
+            {localize(cpuThinking && (
               <p className="game-status-subtitle text-retro-gold retro-blink">
-                {character.thinkingText}
+                {localize(character.thinkingText)}
               </p>
-            )}
+            ))}
           </div>
         </div>
         <div className="game-status-meta">
           <p className="game-status-flavor">
-            {statusFlavor}
+            {localize(statusFlavor)}
           </p>
-          <p className="game-status-count">
-            MOVES: {moveCount}
+          <p className="game-status-count">{translateText("MOVES: ")}{localize(moveCount)}
           </p>
         </div>
       </div>

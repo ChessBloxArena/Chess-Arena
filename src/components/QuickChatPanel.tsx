@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { MessageSquare, SendHorizontal } from 'lucide-react';
 import { type FormEvent, useMemo, useState } from 'react';
 import { playMenuClick } from '@/lib/sounds';
@@ -17,6 +18,7 @@ function statusLabel(status: QuickChatStatus) {
 }
 
 export default function QuickChatPanel({ messages, status, onSend }: QuickChatPanelProps) {
+  useLanguage();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
   const latestMessage = messages[messages.length - 1] ?? null;
@@ -46,26 +48,26 @@ export default function QuickChatPanel({ messages, status, onSend }: QuickChatPa
         aria-expanded={open}
       >
         <MessageSquare aria-hidden="true" size={15} strokeWidth={2.4} />
-        <span>CHAT</span>
-        <strong>{statusLabel(status)}</strong>
+        <span>{translateText("CHAT")}</span>
+        <strong>{localize(statusLabel(status))}</strong>
       </button>
 
-      {open && (
+      {localize(open && (
         <div className="quick-chat-menu retro-panel">
           <div className="quick-chat-feed" aria-live="polite">
-            {visibleMessages.length === 0 ? (
-              <p className="quick-chat-empty">NO MESSAGES YET</p>
+            {localize(visibleMessages.length === 0 ? (
+              <p className="quick-chat-empty">{translateText("NO MESSAGES YET")}</p>
             ) : visibleMessages.map((message) => (
               <div
                 key={message.id}
                 className={`quick-chat-message ${message.sender === 'me' ? 'is-me' : 'is-opponent'}`}
               >
                 <span className="quick-chat-message-copy">
-                  <small>{message.sender === 'me' ? 'YOU' : message.color === 'w' ? 'WHITE' : 'BLACK'}</small>
-                  <strong>{message.text}</strong>
+                  <small>{localize(message.sender === 'me' ? 'YOU' : message.color === 'w' ? 'WHITE' : 'BLACK')}</small>
+                  <strong>{localize(message.text)}</strong>
                 </span>
               </div>
-            ))}
+            )))}
           </div>
 
           <form className="quick-chat-compose" onSubmit={handleSubmit}>
@@ -74,29 +76,29 @@ export default function QuickChatPanel({ messages, status, onSend }: QuickChatPa
               className="quick-chat-input"
               value={draft}
               maxLength={MAX_QUICK_CHAT_MESSAGE_LENGTH}
-              placeholder={status === 'ready' ? 'TYPE MESSAGE' : 'CHAT OFFLINE'}
+              placeholder={localize(status === 'ready' ? 'TYPE MESSAGE' : 'CHAT OFFLINE')}
               disabled={status !== 'ready'}
-              aria-label="Chat message"
+              aria-label={translateText("Chat message")}
               onChange={(event) => setDraft(event.target.value)}
             />
             <button
               type="submit"
               className="quick-chat-send"
               disabled={!canSend}
-              aria-label="Send chat message"
+              aria-label={translateText("Send chat message")}
             >
               <SendHorizontal aria-hidden="true" size={15} strokeWidth={2.4} />
             </button>
           </form>
         </div>
-      )}
+      ))}
 
-      {latestMessage && !open && (
+      {localize(latestMessage && !open && (
         <div key={latestMessage.id} className={`quick-chat-toast ${latestMessage.sender === 'me' ? 'is-me' : 'is-opponent'}`} aria-live="polite">
-          <strong>{latestMessage.sender === 'me' ? 'YOU' : latestMessage.color === 'w' ? 'WHITE' : 'BLACK'}</strong>
-          <em>{latestMessage.text}</em>
+          <strong>{localize(latestMessage.sender === 'me' ? 'YOU' : latestMessage.color === 'w' ? 'WHITE' : 'BLACK')}</strong>
+          <em>{localize(latestMessage.text)}</em>
         </div>
-      )}
+      ))}
     </div>
   );
 }

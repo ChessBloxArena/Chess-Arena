@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { playMenuClick } from '@/lib/sounds';
 import { ARENA_THEMES } from '@/lib/arenaThemes';
 import { useArenaTheme } from '@/hooks/useArenaTheme';
@@ -7,13 +8,14 @@ interface ThemeSelectorProps {
 }
 
 export default function ThemeSelector({ compact = false }: ThemeSelectorProps) {
+  useLanguage();
   const { themeId, themesEnabled, setThemeId } = useArenaTheme();
 
   if (!themesEnabled) return null;
 
   return (
-    <div className={`theme-selector ${compact ? 'theme-selector-compact' : ''}`} aria-label="Theme selector">
-      {ARENA_THEMES.map((theme) => (
+    <div className={`theme-selector ${compact ? 'theme-selector-compact' : ''}`} aria-label={translateText("Theme selector")}>
+      {localize(ARENA_THEMES.map((theme) => (
         <button
           key={theme.id}
           type="button"
@@ -25,13 +27,13 @@ export default function ThemeSelector({ compact = false }: ThemeSelectorProps) {
           aria-pressed={themeId === theme.id}
         >
           <span className="theme-choice-swatches" aria-hidden="true">
-            {theme.swatches.map((swatch) => (
+            {localize(theme.swatches.map((swatch) => (
               <span key={swatch} style={{ backgroundColor: swatch }} />
-            ))}
+            )))}
           </span>
-          <span className="theme-choice-label">{compact ? theme.shortLabel : theme.label.toUpperCase()}</span>
+          <span className="theme-choice-label">{localize(compact ? theme.shortLabel : theme.label.toUpperCase())}</span>
         </button>
-      ))}
+      )))}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { translateText, useLanguage } from '@/lib/i18n';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { Component, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
@@ -103,12 +104,13 @@ class ChessSceneErrorBoundary extends Component<ChessSceneErrorBoundaryProps, Ch
 }
 
 function ChessSceneUnavailable() {
+  useLanguage();
   return (
     <div className="chess-scene-fallback">
       <div className="chess-scene-fallback-panel retro-panel">
-        <p className="chess-scene-fallback-title">3D ARENA UNAVAILABLE</p>
+        <p className="chess-scene-fallback-title">{translateText("3D ARENA UNAVAILABLE")}</p>
         <p className="chess-scene-fallback-copy">
-          ENABLE WEBGL OR TRY ANOTHER BROWSER.
+          {translateText("ENABLE WEBGL OR TRY ANOTHER BROWSER.")}
         </p>
       </div>
     </div>
@@ -928,6 +930,7 @@ function Scene({
 }
 
 export default function ChessScene(props: ChessSceneProps) {
+  useLanguage();
   // Orbit is available immediately; players can lock the view when they prefer.
   const [viewLocked, setViewLocked] = useState(false);
   const [viewResetSignal, setViewResetSignal] = useState(0);
@@ -937,13 +940,13 @@ export default function ChessScene(props: ChessSceneProps) {
   return (
     <div className="chess-canvas-container">
       {showViewControls && (
-        <div className="chess-scene-controls" aria-label="Camera controls">
+        <div className="chess-scene-controls" aria-label={translateText("Camera controls")}>
           <button
             type="button"
             className="chess-scene-control"
             onClick={() => setViewResetSignal((signal) => signal + 1)}
-            aria-label="Reset camera view"
-            title="Reset camera view"
+            aria-label={translateText("Reset camera view")}
+            title={translateText("Reset camera view")}
           >
             <RotateCcw aria-hidden="true" size={16} strokeWidth={2.4} />
           </button>
@@ -951,9 +954,9 @@ export default function ChessScene(props: ChessSceneProps) {
             type="button"
             className="chess-scene-control"
             onClick={() => setViewLocked((locked) => !locked)}
-            aria-label={viewLocked ? 'Unlock camera view' : 'Lock camera view'}
+            aria-label={translateText(viewLocked ? 'Unlock camera view' : 'Lock camera view')}
             aria-pressed={viewLocked}
-            title={viewLocked ? 'Unlock camera view' : 'Lock camera view'}
+            title={translateText(viewLocked ? 'Unlock camera view' : 'Lock camera view')}
           >
             {viewLocked ? (
               <Lock aria-hidden="true" size={16} strokeWidth={2.4} />

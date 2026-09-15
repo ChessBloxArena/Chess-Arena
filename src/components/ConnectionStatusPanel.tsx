@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import type { QuickChatStatus } from '@/hooks/useQuickChat';
 
 export type GameConnectionStatus = 'connecting' | 'online' | 'reconnecting' | 'offline';
@@ -35,6 +36,7 @@ export default function ConnectionStatusPanel({
   message,
   onRetry,
 }: ConnectionStatusPanelProps) {
+  useLanguage();
   const showGameStatus = gameStatus !== 'online';
   const showChatStatus = chatStatus !== null && chatStatus !== 'ready';
 
@@ -46,20 +48,18 @@ export default function ConnectionStatusPanel({
     <aside className={`connection-status-panel connection-status-${tone} retro-panel`} aria-live="polite">
       <span className="connection-status-dot" aria-hidden="true" />
       <span className="connection-status-copy">
-        <strong>{showGameStatus ? gameStatusLabel(gameStatus) : chatStatusLabel(chatStatus!)}</strong>
-        <small>{message || defaultMessage(gameStatus, chatStatus)}</small>
+        <strong>{localize(showGameStatus ? gameStatusLabel(gameStatus) : chatStatusLabel(chatStatus!))}</strong>
+        <small>{localize(message || defaultMessage(gameStatus, chatStatus))}</small>
       </span>
-      {showGameStatus && onRetry && (
+      {localize(showGameStatus && onRetry && (
         <button
           type="button"
           className="connection-status-retry"
           onClick={() => {
             void onRetry();
           }}
-        >
-          RETRY
-        </button>
-      )}
+        >{translateText("RETRY")}</button>
+      ))}
     </aside>
   );
 }

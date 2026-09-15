@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { useState } from "react";
 import { RefreshCcw, RotateCcw, Wallet } from "lucide-react";
 import { buildUnwrapSolTransaction } from "@/lib/solanaWagerTransactions";
@@ -21,6 +22,7 @@ function short(value: string): string {
 }
 
 export default function WagerRecoveryPanel({ wallet }: WagerRecoveryPanelProps) {
+  useLanguage();
   const wagerConfig = getWagerConfig();
   const [recoverable, setRecoverable] = useState<RecoverableWager[]>([]);
   const [hasScanned, setHasScanned] = useState(false);
@@ -90,61 +92,59 @@ export default function WagerRecoveryPanel({ wallet }: WagerRecoveryPanelProps) 
   return (
     <div className="border border-primary/30 bg-background/40 p-3 space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[7px] font-retro text-primary">STUCK WAGER RECOVERY</p>
+        <p className="text-[7px] font-retro text-primary">{translateText("STUCK WAGER RECOVERY")}</p>
         <button
           className="retro-btn retro-btn-small"
           disabled={busyAction !== null}
           onClick={() => run("scan", scan)}
         >
-          <RefreshCcw size={12} /> {busyAction === "scan" ? "SCANNING" : "SCAN"}
+          <RefreshCcw size={12} /> {localize(busyAction === "scan" ? "SCANNING" : "SCAN")}
         </button>
       </div>
 
-      {hasScanned && recoverable.length === 0 && (
-        <p className="text-[6px] font-retro text-muted-foreground text-center">
-          NO FUNDED STUCK ESCROWS FOUND
-        </p>
-      )}
+      {localize(hasScanned && recoverable.length === 0 && (
+        <p className="text-[6px] font-retro text-muted-foreground text-center">{translateText("NO FUNDED STUCK ESCROWS FOUND")}</p>
+      ))}
 
-      {recoverable.map((row) => (
+      {localize(recoverable.map((row) => (
         <div key={row.gameId} className="border border-border/50 p-2 space-y-2">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[6px] font-retro text-foreground">
-              {formatRawAmount(BigInt(row.vaultAmount), Number(row.assetDecimals ?? 9))} {row.assetSymbol ?? "SOL"}
+              {localize(formatRawAmount(BigInt(row.vaultAmount), Number(row.assetDecimals ?? 9)))} {localize(row.assetSymbol ?? "SOL")}
             </p>
-            <p className="text-[6px] font-retro text-muted-foreground">{short(row.contestId)}</p>
+            <p className="text-[6px] font-retro text-muted-foreground">{localize(short(row.contestId))}</p>
           </div>
           <button
             className="retro-btn retro-btn-small w-full"
             disabled={busyAction !== null || !row.canRefund}
             onClick={() => run("refund", () => refund(row))}
           >
-            <RotateCcw size={12} /> {busyAction === "refund" ? "REFUNDING" : row.canRefund ? "REFUND ESCROW" : "WAITING FOR EXPIRY"}
+            <RotateCcw size={12} /> {localize(busyAction === "refund" ? "REFUNDING" : row.canRefund ? "REFUND ESCROW" : "WAITING FOR EXPIRY")}
           </button>
         </div>
-      ))}
+      )))}
 
-      {(refundSignature || unwrapSignature) && (
+      {localize((refundSignature || unwrapSignature) && (
         <div className="space-y-2">
-          {refundSignature && (
-            <p className="text-[6px] font-retro text-primary">REFUND TX: {short(refundSignature)}</p>
-          )}
-          {unwrapSignature && (
-            <p className="text-[6px] font-retro text-primary">UNWRAP TX: {short(unwrapSignature)}</p>
-          )}
+          {localize(refundSignature && (
+            <p className="text-[6px] font-retro text-primary">{translateText("REFUND TX: ")}{localize(short(refundSignature))}</p>
+          ))}
+          {localize(unwrapSignature && (
+            <p className="text-[6px] font-retro text-primary">{translateText("UNWRAP TX: ")}{localize(short(unwrapSignature))}</p>
+          ))}
           <button
             className="retro-btn retro-btn-small w-full"
             disabled={busyAction !== null}
             onClick={() => run("unwrap", unwrapSol)}
           >
-            <Wallet size={12} /> {busyAction === "unwrap" ? "SIGNING" : "UNWRAP SOL"}
+            <Wallet size={12} /> {localize(busyAction === "unwrap" ? "SIGNING" : "UNWRAP SOL")}
           </button>
         </div>
-      )}
+      ))}
 
-      {(actionError || wallet.error) && (
-        <p className="text-[6px] font-retro text-destructive text-center">{actionError || wallet.error}</p>
-      )}
+      {localize((actionError || wallet.error) && (
+        <p className="text-[6px] font-retro text-destructive text-center">{localize(actionError || wallet.error)}</p>
+      ))}
     </div>
   );
 }

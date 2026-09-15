@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { AutomaticPayoutReviewProvider } from "./components/AutomaticPayoutReview";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -20,7 +21,9 @@ const WagerPreview = import.meta.env.DEV ? lazy(() => import('./pages/WagerPrevi
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  useLanguage();
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ArenaThemeProvider>
@@ -28,13 +31,13 @@ const App = () => (
           <Toaster />
           <Sonner />
           <AutomaticPayoutReviewProvider><BrowserRouter>
-            <Suspense fallback={<GameLoadingPanel title="LOADING ARENA" subtitle="Preparing match" />}>
+            <Suspense fallback={<GameLoadingPanel title={translateText("LOADING ARENA")} subtitle={translateText("Preparing match")} />}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/game" element={<Game />} />
                 <Route path="/funds" element={<Funds />} />
                 <Route path="/join/:gameId" element={<WagerJoin />} />
-                {WagerPreview && <Route path="/wager-preview" element={<WagerPreview />} />}
+                {localize(WagerPreview && <Route path="/wager-preview" element={<WagerPreview />} />)}
                 <Route path="/game/:gameId" element={<OnlineGame />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
@@ -44,6 +47,7 @@ const App = () => (
       </ArenaThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

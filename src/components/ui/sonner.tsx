@@ -1,13 +1,16 @@
+import { translateText, useLanguage } from '@/lib/i18n';
 import { useTheme } from "next-themes";
 import { Toaster as Sonner, toast } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
+  useLanguage();
   const { theme = "system" } = useTheme();
 
   return (
     <Sonner
+      containerAriaLabel={translateText("Notifications")}
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       toastOptions={{

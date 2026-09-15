@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage, getLanguage } from '@/lib/i18n';
 import { automaticRblxAbi } from "../../supabase/functions/_shared/automaticRblx.mjs";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -34,6 +35,7 @@ async function readContest(contestId: string, escrowAddress?: string) {
 }
 
 export default function Funds() {
+  useLanguage();
   const wallet = useRobinhoodWallet();
   const navigate = useNavigate();
   const activeWallet = useRef(wallet.address);
@@ -112,28 +114,28 @@ export default function Funds() {
 
   return <main className="min-h-screen bg-background px-5 py-8 text-foreground">
     <div className="mx-auto max-w-3xl space-y-6">
-      <Link to="/" className="text-primary">← ChessBlox</Link>
-      <header><h1 className="text-3xl font-bold">My funds & matches</h1><p className="mt-2 text-muted-foreground">Recover a match, collect a prize, or refund a waiting wager.</p></header>
+      <Link to="/" className="text-primary">{translateText("← ChessBlox")}</Link>
+      <header><h1 className="text-3xl font-bold">{translateText("My funds & matches")}</h1><p className="mt-2 text-muted-foreground">{translateText("Recover a match, collect a prize, or refund a waiting wager.")}</p></header>
       <section className="rounded-xl border border-primary/30 bg-card p-5 space-y-3">
-        <p>{wallet.address ? wallet.shortAddress : "Connect the wallet you used to play."}</p>
-        <p className="text-sm text-muted-foreground">Robinhood Chain · {wallet.balanceWei === null ? "—" : formatEther(wallet.balanceWei)} ETH</p>
-        {!wallet.address ? <button className="retro-btn" disabled={wallet.connecting} onClick={() => void wallet.connect()}>Connect wallet</button>
-          : <button className="retro-btn" disabled={busy} onClick={() => void run(() => load())}>{busy ? "Checking…" : "Find my matches"}</button>}
-        <p className="text-xs text-muted-foreground">Finding matches asks for a signature to prove wallet ownership. Claims and refunds require a separate transaction and network fee.</p>
+        <p>{localize(wallet.address ? wallet.shortAddress : "Connect the wallet you used to play.")}</p>
+        <p className="text-sm text-muted-foreground">{translateText("Robinhood Chain · ")}{localize(wallet.balanceWei === null ? "—" : formatEther(wallet.balanceWei))}{translateText(" ETH")}</p>
+        {localize(!wallet.address ? <button className="retro-btn" disabled={wallet.connecting} onClick={() => void wallet.connect()}>{translateText("Connect wallet")}</button>
+          : <button className="retro-btn" disabled={busy} onClick={() => void run(() => load())}>{localize(busy ? "Checking…" : "Find my matches")}</button>)}
+        <p className="text-xs text-muted-foreground">{translateText("Finding matches asks for a signature to prove wallet ownership. Claims and refunds require a separate transaction and network fee.")}</p>
       </section>
-      {pending && <section className="rounded-xl border border-primary/40 p-5 space-y-3">
-        <h2 className="font-bold">Unfinished payment saved</h2><p>{formatEther(BigInt(pending.prepared.stakeLamports))} ETH · {pending.prepared.gameId.slice(0, 8)}</p>
+      {localize(pending && <section className="rounded-xl border border-primary/40 p-5 space-y-3">
+        <h2 className="font-bold">{translateText("Unfinished payment saved")}</h2><p>{localize(formatEther(BigInt(pending.prepared.stakeLamports)))}{translateText(" ETH · ")}{localize(pending.prepared.gameId.slice(0, 8))}</p>
         <button className="retro-btn" disabled={busy || !wallet.address} onClick={() => void run(async () => {
           if (!wallet.address) return;
           const id = await joinRobinhoodWagerPvpQueue({ ...wallet, address: wallet.address, stakeWei: BigInt(pending.prepared.stakeLamports) });
           navigate(`/game/${id}`);
-        })}>Continue saved payment</button>
-        <p className="text-sm text-muted-foreground">This resumes the saved match. If you already sent the transaction, it checks that payment.</p>
-      </section>}
-      {(error || wallet.error) && <p role="alert" className="rounded-lg border border-destructive p-4 break-words">{error || wallet.error}</p>}
-      {receipt && <a className="block text-primary underline break-all" href={robinhoodTransactionUrl(receipt)} target="_blank" rel="noreferrer">Transaction confirmed ↗</a>}
-      {loaded && games.length === 0 && <p>No matches found for this wallet.</p>}
-      {games.map((game) => {
+        })}>{translateText("Continue saved payment")}</button>
+        <p className="text-sm text-muted-foreground">{translateText("This resumes the saved match. If you already sent the transaction, it checks that payment.")}</p>
+      </section>)}
+      {localize((error || wallet.error) && <p role="alert" className="rounded-lg border border-destructive p-4 break-words">{localize(error || wallet.error)}</p>)}
+      {localize(receipt && <a className="block text-primary underline break-all" href={robinhoodTransactionUrl(receipt)} target="_blank" rel="noreferrer">{translateText("Transaction confirmed ↗")}</a>)}
+      {localize(loaded && games.length === 0 && <p>{translateText("No matches found for this wallet.")}</p>)}
+      {localize(games.map((game) => {
         const contest = contests[game.gameId];
         const owner = wallet.address?.toLowerCase();
         const creator = contest?.creator.toLowerCase() === owner;
@@ -146,21 +148,21 @@ export default function Funds() {
         const canExpire = contest?.state === 2 && participant && contest.expiresAt <= BigInt(Math.floor(Date.now() / 1000));
         const title = contest?.payout?.asset === 1 ? "RBLX prize paid to wallet" : contest?.payout?.asset === 2 ? "Full ETH fallback paid" : contest?.payout && contest.state === 3 && !fallbackReady ? "Automatic RBLX payout pending" : !contest ? "Checking chain…" : contest.state === 0 ? "No deposit found" : contest.state === 1 ? "Waiting for opponent" : contest.state === 2 ? "Match funded" : contest.state === 6 ? "Funds already claimed or returned" : claimable ? "Funds ready to claim" : "Escrow settled";
         return <section key={game.gameId} className="rounded-xl border border-border bg-card p-5 space-y-3">
-          <div className="flex justify-between gap-4"><h2 className="font-bold">{title}</h2><span>{formatEther(BigInt(game.stakeWei))} ETH stake</span></div>
-          {contest?.payout && contest.state === 3 && <p className="text-sm text-muted-foreground">The service is processing your prize. ETH recovery unlocks {new Date((Number(contest.payout.settledAt) + 900) * 1000).toLocaleString()}.</p>}
-          {game.payoutSignature && <a className="text-primary underline" target="_blank" rel="noreferrer" href={robinhoodTransactionUrl(game.payoutSignature)}>View payout receipt ↗</a>}
-          <p className="text-sm text-muted-foreground">Match {game.gameId.slice(0, 8)} · {new Date(game.createdAt).toLocaleString()}</p>
-          {contest?.state === 2 && <p className="text-sm text-muted-foreground">If settlement is unavailable, refunds unlock {new Date(Number(contest.expiresAt) * 1000).toLocaleString()}.</p>}
+          <div className="flex justify-between gap-4"><h2 className="font-bold">{localize(title)}</h2><span>{localize(formatEther(BigInt(game.stakeWei)))}{translateText(" ETH stake")}</span></div>
+          {localize(contest?.payout && contest.state === 3 && <p className="text-sm text-muted-foreground">{translateText("The service is processing your prize. ETH recovery unlocks ")}{localize(new Date((Number(contest.payout.settledAt) + 900) * 1000).toLocaleString(getLanguage()))}.</p>)}
+          {localize(game.payoutSignature && <a className="text-primary underline" target="_blank" rel="noreferrer" href={robinhoodTransactionUrl(game.payoutSignature)}>{translateText("View payout receipt ↗")}</a>)}
+          <p className="text-sm text-muted-foreground">{translateText("Match ")}{localize(game.gameId.slice(0, 8))} · {localize(new Date(game.createdAt).toLocaleString(getLanguage()))}</p>
+          {localize(contest?.state === 2 && <p className="text-sm text-muted-foreground">{translateText("If settlement is unavailable, refunds unlock ")}{localize(new Date(Number(contest.expiresAt) * 1000).toLocaleString(getLanguage()))}.</p>)}
           <div className="flex flex-wrap gap-3">
-            {!['white_prepared', 'black_prepared'].includes(game.paymentStatus) && <button className="retro-btn retro-btn-small" disabled={busy} onClick={() => void run(() => openGame(game))}>Open match</button>}
-            {claimable && <button className="retro-btn retro-btn-small" disabled={busy} onClick={() => void run(() => transact(game, "claimEth"))}>Claim ETH</button>}
-            {canCancel && <button className="retro-btn retro-btn-small" disabled={busy} onClick={() => void run(() => transact(game, "cancelUnmatched"))}>Refund waiting wager</button>}
-            {canExpire && <button className="retro-btn retro-btn-small" disabled={busy} onClick={() => void run(() => transact(game, "refundExpired"))}>Unlock refund</button>}
-            <button className="text-sm text-primary underline" disabled={busy} onClick={() => void run(async () => { const fresh = await readContest(game.contestId, game.escrowAddress); setContests((previous) => ({ ...previous, [game.gameId]: fresh })); })}>Refresh status</button>
+            {localize(!['white_prepared', 'black_prepared'].includes(game.paymentStatus) && <button className="retro-btn retro-btn-small" disabled={busy} onClick={() => void run(() => openGame(game))}>{translateText("Open match")}</button>)}
+            {localize(claimable && <button className="retro-btn retro-btn-small" disabled={busy} onClick={() => void run(() => transact(game, "claimEth"))}>{translateText("Claim ETH")}</button>)}
+            {localize(canCancel && <button className="retro-btn retro-btn-small" disabled={busy} onClick={() => void run(() => transact(game, "cancelUnmatched"))}>{translateText("Refund waiting wager")}</button>)}
+            {localize(canExpire && <button className="retro-btn retro-btn-small" disabled={busy} onClick={() => void run(() => transact(game, "refundExpired"))}>{translateText("Unlock refund")}</button>)}
+            <button className="text-sm text-primary underline" disabled={busy} onClick={() => void run(async () => { const fresh = await readContest(game.contestId, game.escrowAddress); setContests((previous) => ({ ...previous, [game.gameId]: fresh })); })}>{translateText("Refresh status")}</button>
           </div>
         </section>;
-      })}
-      {nextCursor && <button disabled={busy} className="retro-btn" onClick={() => void run(() => load(nextCursor))}>Older matches</button>}
+      }))}
+      {localize(nextCursor && <button disabled={busy} className="retro-btn" onClick={() => void run(() => load(nextCursor))}>{translateText("Older matches")}</button>)}
     </div>
   </main>;
 }

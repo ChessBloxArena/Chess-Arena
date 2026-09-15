@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import PlayTermsText from './PlayTermsText';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Check, ShieldCheck } from 'lucide-react';
@@ -17,6 +18,7 @@ export function useAutomaticPayoutReview(): Review {
 }
 
 export function AutomaticPayoutReviewProvider({ children }: { children: ReactNode }) {
+  useLanguage();
   const [request, setRequest] = useState<PayoutReviewRequest | null>(null);
   const pending = useRef<{ resolve: (value: PayoutAuthorization | undefined) => void; reject: (error: Error) => void } | null>(null);
   const review = useCallback<Review>(request => new Promise((resolve, reject) => {
@@ -29,13 +31,14 @@ export function AutomaticPayoutReviewProvider({ children }: { children: ReactNod
     pending.current = null; setRequest(null);
   };
   useEffect(() => () => { pending.current?.reject(new Error('Payout review closed.')); pending.current = null; }, []);
-  return <ReviewContext.Provider value={review}>{children}{request && <AutomaticPayoutReview request={request} onComplete={finish} onCancel={() => finish(undefined, true)} />}</ReviewContext.Provider>;
+  return <ReviewContext.Provider value={review}>{localize(children)}{localize(request && <AutomaticPayoutReview request={request} onComplete={finish} onCancel={() => finish(undefined, true)} />)}</ReviewContext.Provider>;
 }
 
 export function AutomaticPayoutReview({ request, onComplete, onCancel, loadQuote = requestAutomaticPayoutQuote }: {
   request: PayoutReviewRequest; onComplete: (authorization?: PayoutAuthorization) => void; onCancel: () => void;
   loadQuote?: typeof requestAutomaticPayoutQuote;
 }) {
+  useLanguage();
   const [accepted, setAccepted] = useState(() => !!readPlayConsent(request.walletAddress));
   const [showTerms, setShowTerms] = useState(() => !readPlayConsent(request.walletAddress));
   const [quote, setQuote] = useState<AutomaticPayoutQuote | null>(null);
@@ -76,29 +79,29 @@ export function AutomaticPayoutReview({ request, onComplete, onCancel, loadQuote
   return <Dialog open onOpenChange={open => { if (!open) onCancel(); }}>
     <DialogContent className="play-review max-h-[90dvh] overflow-y-auto sm:max-w-lg">
       <div className="play-review-icon"><ShieldCheck size={27}/></div>
-      <DialogTitle>{showTerms ? 'One sheet. Then your next move.' : 'Your match. Your prize.'}</DialogTitle>
-      <DialogDescription>{showTerms ? 'Read this once for your wallet. We will ask again when these terms change.' : 'Review this match before approving the deposit in your wallet.'}</DialogDescription>
-      {showTerms ? <div className="play-review-body">
+      <DialogTitle>{localize(showTerms ? 'One sheet. Then your next move.' : 'Your match. Your prize.')}</DialogTitle>
+      <DialogDescription>{localize(showTerms ? 'Read this once for your wallet. We will ask again when these terms change.' : 'Review this match before approving the deposit in your wallet.')}</DialogDescription>
+      {localize(showTerms ? <div className="play-review-body">
         <PlayTermsText/>
-        <button className="sky-play" onClick={accept}>Accept & continue <Check size={18}/></button>
+        <button className="sky-play" onClick={accept}>{translateText("Accept & continue ")}<Check size={18}/></button>
       </div> : <div className="play-review-body">
-        <div className="play-review-amounts"><div><span>Your stake</span><strong>{formatEther(request.stakeWei)} ETH</strong></div><div><span>Winner’s pot</span><strong>{formatEther(request.stakeWei * 2n)} ETH</strong></div></div>
-        {quote && <section aria-label="Automatic payout quote" className="play-review-quote">
-          <span>Estimated prize now</span><strong>{formatUnits(BigInt(quote.quotedRblxOut), 18)} RBLX</strong>
-          <span>Minimum RBLX you authorize</span><strong>{formatUnits(BigInt(quote.minimumRblxOut), 18)} RBLX</strong>
-          <p>This minimum stays fixed for this match. The exchange rate when you win determines the final amount.</p>
-          <p>If conversion cannot meet this minimum within 15 minutes after settlement, your full <b>{formatEther(request.stakeWei * 2n)} ETH</b> prize is paid instead. You can also claim that ETH yourself after the wait.</p>
-          <p className="break-all">Receiving wallet: {quote.walletAddress}</p>
-          <p role="status">{expired ? 'Quote expired. Updating before you authorize.' : `Fresh quote · valid for ${Math.max(0, Math.ceil((Date.parse(quote.expiresAt) - now) / 1000))}s. Review the amounts above.`}</p>
-        </section>}
-        {busy && <p role="status">Getting your prize quote…</p>}
-        {error && <p role="alert" className="sky-error">{error}</p>}
-        {(!quote || error) && !busy && <button className="sky-play" onClick={() => void fetchQuote(true)}>{error ? 'Try quote again' : 'Connect quote session'}</button>}
-        {quote && <button className="sky-play" disabled={busy || expired || !accepted || !!error} onClick={() => { if (Date.parse(quote.expiresAt) <= Date.now()) { setNow(Date.now()); return; } onComplete({ token: quote.token, accepted: true, quote }); }}>Confirm {formatEther(request.stakeWei)} ETH & continue</button>}
-        <button className="sky-text-button" onClick={() => setShowTerms(true)}>Review accepted terms</button>
-      </div>}
-      <p className="play-review-attribution">Powered by Uniswap Labs · Robinhood Stock Tokens</p>
-      <button className="sky-text-button" onClick={onCancel}>Cancel</button>
+        <div className="play-review-amounts"><div><span>{translateText("Your stake")}</span><strong>{localize(formatEther(request.stakeWei))}{translateText(" ETH")}</strong></div><div><span>{translateText("Winner’s pot")}</span><strong>{localize(formatEther(request.stakeWei * 2n))}{translateText(" ETH")}</strong></div></div>
+        {localize(quote && <section aria-label={translateText("Automatic payout quote")} className="play-review-quote">
+          <span>{translateText("Estimated prize now")}</span><strong>{localize(formatUnits(BigInt(quote.quotedRblxOut), 18))}{translateText(" RBLX")}</strong>
+          <span>{translateText("Minimum RBLX you authorize")}</span><strong>{localize(formatUnits(BigInt(quote.minimumRblxOut), 18))}{translateText(" RBLX")}</strong>
+          <p>{translateText("This minimum stays fixed for this match. The exchange rate when you win determines the final amount.")}</p>
+          <p>{translateText("If conversion cannot meet this minimum within 15 minutes after settlement, your full ")}<b>{localize(formatEther(request.stakeWei * 2n))}{translateText(" ETH")}</b>{translateText(" prize is paid instead. You can also claim that ETH yourself after the wait.")}</p>
+          <p className="break-all">{translateText("Receiving wallet: ")}{localize(quote.walletAddress)}</p>
+          <p role="status">{localize(expired ? 'Quote expired. Updating before you authorize.' : `Fresh quote · valid for ${Math.max(0, Math.ceil((Date.parse(quote.expiresAt) - now) / 1000))}s. Review the amounts above.`)}</p>
+        </section>)}
+        {localize(busy && <p role="status">{translateText("Getting your prize quote…")}</p>)}
+        {localize(error && <p role="alert" className="sky-error">{localize(error)}</p>)}
+        {localize((!quote || error) && !busy && <button className="sky-play" onClick={() => void fetchQuote(true)}>{localize(error ? 'Try quote again' : 'Connect quote session')}</button>)}
+        {localize(quote && <button className="sky-play" disabled={busy || expired || !accepted || !!error} onClick={() => { if (Date.parse(quote.expiresAt) <= Date.now()) { setNow(Date.now()); return; } onComplete({ token: quote.token, accepted: true, quote }); }}>{translateText("Confirm ")}{localize(formatEther(request.stakeWei))}{translateText(" ETH & continue")}</button>)}
+        <button className="sky-text-button" onClick={() => setShowTerms(true)}>{translateText("Review accepted terms")}</button>
+      </div>)}
+      <p className="play-review-attribution">{translateText("Powered by Uniswap Labs · Robinhood Stock Tokens")}</p>
+      <button className="sky-text-button" onClick={onCancel}>{translateText("Cancel")}</button>
     </DialogContent>
   </Dialog>;
 }

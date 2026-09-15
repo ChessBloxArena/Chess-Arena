@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import type { PieceSymbol, Square } from 'chess.js';
 import { useState } from 'react';
 import { ChevronDown, List } from 'lucide-react';
@@ -44,44 +45,46 @@ function getMoveRows(history: string[], moves?: MoveHistoryEntry[]) {
 }
 
 function MoveCell({ move }: { move: MoveHistoryEntry | null }) {
+  const language = useLanguage();
   if (!move) {
-    return <span className="move-history-pending">WAITING...</span>;
+    return <span className="move-history-pending">{translateText("WAITING...")}</span>;
   }
 
   return (
     <span className="move-history-card">
       <span className="move-history-san">{move.san}</span>
-      <span className="move-history-detail">{describeMove(move)}</span>
+      <span className="move-history-detail">{localize(describeMove(move, language))}</span>
     </span>
   );
 }
 
 export default function MoveHistoryPanel({ history, moves, title = 'MOVE LOG', pulseKey }: MoveHistoryPanelProps) {
+  useLanguage();
   const rows = getMoveRows(history, moves);
   const [expanded, setExpanded] = useState(false);
 
   return (
     <aside
       className={`move-history-panel retro-panel ${expanded ? 'is-expanded' : 'is-collapsed'} ${pulseKey ? 'is-pulsing' : ''}`}
-      aria-label={title}
+      aria-label={localize(title)}
     >
       <button className="move-history-header" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-        <List size={14}/><span>{title}</span>
-        <span>{history.length}</span>
+        <List size={14}/><span>{localize(title)}</span>
+        <span>{localize(history.length)}</span>
         <ChevronDown size={14}/>
       </button>
       <div className="move-history-list" hidden={!expanded}>
-        {rows.length === 0 ? (
-          <p className="move-history-empty">MAKE THE FIRST MOVE</p>
+        {localize(rows.length === 0 ? (
+          <p className="move-history-empty">{translateText("MAKE THE FIRST MOVE")}</p>
         ) : (
           rows.map((row) => (
             <div key={row.number} className="move-history-row">
-              <span className="move-history-number">{row.number}.</span>
+              <span className="move-history-number">{localize(row.number)}.</span>
               <MoveCell move={row.white} />
               <MoveCell move={row.black} />
             </div>
           ))
-        )}
+        ))}
       </div>
     </aside>
   );

@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
 
 interface PromotionPickerProps {
@@ -15,14 +16,15 @@ const PROMOTION_OPTIONS: Array<{ piece: PromotionPiece; label: string; whiteSymb
 ];
 
 export default function PromotionPicker({ color, disabled = false, onCancel, onSelect }: PromotionPickerProps) {
+  useLanguage();
   return (
-    <div className="promotion-overlay" role="dialog" aria-modal="true" aria-label="Choose promotion piece">
+    <div className="promotion-overlay" role="dialog" aria-modal="true" aria-label={translateText("Choose promotion piece")}>
       <div className="promotion-panel retro-panel">
         <div className="promotion-burst" aria-hidden="true" />
-        <p className="promotion-title">PROMOTE PAWN</p>
-        <p className="promotion-subtitle">FINAL RANK REACHED</p>
+        <p className="promotion-title">{translateText("PROMOTE PAWN")}</p>
+        <p className="promotion-subtitle">{translateText("FINAL RANK REACHED")}</p>
         <div className="promotion-options">
-          {PROMOTION_OPTIONS.map((option) => (
+          {localize(PROMOTION_OPTIONS.map((option) => (
             <button
               key={option.piece}
               type="button"
@@ -31,15 +33,13 @@ export default function PromotionPicker({ color, disabled = false, onCancel, onS
               onClick={() => onSelect(option.piece)}
             >
               <span className="promotion-symbol">
-                {color === 'w' ? option.whiteSymbol : option.blackSymbol}
+                {localize(color === 'w' ? option.whiteSymbol : option.blackSymbol)}
               </span>
-              <span className="promotion-label">{option.label}</span>
+              <span className="promotion-label">{localize(option.label)}</span>
             </button>
-          ))}
+          )))}
         </div>
-        <button type="button" className="retro-btn retro-btn-small" disabled={disabled} onClick={onCancel}>
-          CANCEL
-        </button>
+        <button type="button" className="retro-btn retro-btn-small" disabled={disabled} onClick={onCancel}>{translateText("CANCEL")}</button>
       </div>
     </div>
   );

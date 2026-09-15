@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { useAutomaticPayoutReview } from "@/components/AutomaticPayoutReview";
 import { useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -10,6 +11,7 @@ import { robinhoodEscrowAddress } from '@/lib/robinhoodChain';
 import { parseWagerInviteStake } from '@/lib/wagerInvite';
 
 export default function WagerJoin() {
+  useLanguage();
   const reviewPayout = useAutomaticPayoutReview();
   const { gameId } = useParams<{ gameId: string }>();
   const [params] = useSearchParams();
@@ -50,18 +52,18 @@ export default function WagerJoin() {
 
   return <main className="min-h-screen bg-background px-5 py-8 text-foreground">
     <div className="mx-auto max-w-xl space-y-6">
-      <nav className="flex justify-between gap-4"><Link to="/" className="text-primary">← ChessBlox</Link><Link to="/funds" className="text-primary">My funds</Link></nav>
-      <header><h1 className="text-3xl font-bold">You've been challenged.</h1><p className="mt-2 text-muted-foreground">Join an ETH wager on Robinhood Chain.</p></header>
+      <nav className="flex justify-between gap-4"><Link to="/" className="text-primary">{translateText("← ChessBlox")}</Link><Link to="/funds" className="text-primary">{translateText("My funds")}</Link></nav>
+      <header><h1 className="text-3xl font-bold">{translateText("You've been challenged.")}</h1><p className="mt-2 text-muted-foreground">{translateText("Join an ETH wager on Robinhood Chain.")}</p></header>
       <section className="rounded-xl border border-primary/30 bg-card p-5 space-y-4">
-        {validInvite && <><p>Your stake <strong className="float-right">{formatEther(stake!)} ETH</strong></p><p>Winner's pot <strong className="float-right">{formatEther(stake! * 2n)} ETH</strong></p><p className="text-sm text-muted-foreground">Payout terms are checked before your deposit. Draws return each player's stake. Deposit network fees are separate.</p></>}
-        <p className="text-sm text-muted-foreground">{wallet.address ? `${wallet.shortAddress} · ${wallet.balanceWei === null ? 'Checking balance…' : `${formatEther(wallet.balanceWei)} ETH`}` : 'Connect an EVM wallet to join.'}</p>
-        {!wallet.address && validInvite ? <button className="retro-btn w-full" disabled={wallet.connecting} onClick={() => void wallet.connect()}>{wallet.connecting ? 'Connecting…' : 'Connect wallet'}</button>
-          : <button className="retro-btn retro-btn-gold w-full" disabled={busy || !!blocker} onClick={() => void join()}>{busy ? 'Confirm in wallet…' : validInvite ? `Deposit ${formatEther(stake!)} ETH & join` : 'Invite unavailable'}</button>}
-        {blocker && <p className="text-sm text-muted-foreground">{blocker}</p>}
-        {(error || wallet.error) && <p role="alert" className="break-words text-sm text-destructive">{error || wallet.error}</p>}
-        <p className="text-sm text-muted-foreground">Joining asks for proof of wallet ownership, then a separate deposit. The match stake is checked before any payment is requested.</p>
+        {localize(validInvite && <><p>{translateText("Your stake ")}<strong className="float-right">{localize(formatEther(stake!))}{translateText(" ETH")}</strong></p><p>{translateText("Winner's pot ")}<strong className="float-right">{localize(formatEther(stake! * 2n))}{translateText(" ETH")}</strong></p><p className="text-sm text-muted-foreground">{translateText("Payout terms are checked before your deposit. Draws return each player's stake. Deposit network fees are separate.")}</p></>)}
+        <p className="text-sm text-muted-foreground">{localize(wallet.address ? `${wallet.shortAddress} · ${wallet.balanceWei === null ? 'Checking balance…' : `${formatEther(wallet.balanceWei)} ETH`}` : 'Connect an EVM wallet to join.')}</p>
+        {localize(!wallet.address && validInvite ? <button className="retro-btn w-full" disabled={wallet.connecting} onClick={() => void wallet.connect()}>{localize(wallet.connecting ? 'Connecting…' : 'Connect wallet')}</button>
+          : <button className="retro-btn retro-btn-gold w-full" disabled={busy || !!blocker} onClick={() => void join()}>{localize(busy ? 'Confirm in wallet…' : validInvite ? `Deposit ${formatEther(stake!)} ETH & join` : 'Invite unavailable')}</button>)}
+        {localize(blocker && <p className="text-sm text-muted-foreground">{localize(blocker)}</p>)}
+        {localize((error || wallet.error) && <p role="alert" className="break-words text-sm text-destructive">{localize(error || wallet.error)}</p>)}
+        <p className="text-sm text-muted-foreground">{translateText("Joining asks for proof of wallet ownership, then a separate deposit. The match stake is checked before any payment is requested.")}</p>
       </section>
-      <Link to="/funds" className="block text-primary underline">Already paid? Recover your match or funds →</Link>
+      <Link to="/funds" className="block text-primary underline">{translateText("Already paid? Recover your match or funds →")}</Link>
     </div>
   </main>;
 }

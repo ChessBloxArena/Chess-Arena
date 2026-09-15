@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import GameActionMenu from '@/components/GameActionMenu';
 import { ArrowLeft, Music2, Volume2, VolumeX, Pause } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -30,6 +31,7 @@ const PIECE_SYMBOLS: Record<string, string> = {
 };
 
 export default function OnlineGame() {
+  const language = useLanguage();
   const { gameId } = useParams<{ gameId: string }>();
   const navigate = useNavigate();
   const wallet = useRobinhoodWallet();
@@ -263,17 +265,17 @@ export default function OnlineGame() {
               : 'AWAITING REFEREE RESULT';
 
   if (loading) {
-    return <GameLoadingPanel title="LOADING ONLINE GAME" subtitle="SYNCING MATCH STATE" />;
+    return <GameLoadingPanel title={translateText("LOADING ONLINE GAME")} subtitle={translateText("SYNCING MATCH STATE")} />;
   }
 
   if (error) {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center bg-background gap-4 p-4">
         <div className="game-error-panel retro-panel">
-          <p className="game-error-title">ONLINE GAME ERROR</p>
-          <p className="game-error-copy">{error}</p>
-          <button className="retro-btn" onClick={handleBack}>MENU</button>
-          <a className="block mt-4 text-primary underline" href="/funds">Recover my match or funds</a>
+          <p className="game-error-title">{translateText("ONLINE GAME ERROR")}</p>
+          <p className="game-error-copy">{localize(error)}</p>
+          <button className="retro-btn" onClick={handleBack}>{translateText("MENU")}</button>
+          <a className="block mt-4 text-primary underline" href="/funds">{translateText("Recover my match or funds")}</a>
         </div>
       </div>
     );
@@ -297,7 +299,7 @@ export default function OnlineGame() {
   const movePulseKey = lastMoveFeedback?.id ?? null;
   const capturePulseKey = lastMoveFeedback?.isCapture ? lastMoveFeedback.id : null;
   const lastMoveDescription = moveHistory.length > 0
-    ? describeMove(moveHistory[moveHistory.length - 1])
+    ? describeMove(moveHistory[moveHistory.length - 1], language)
     : null;
   const copyButtonText =
     copyState === 'copying'
@@ -364,19 +366,17 @@ export default function OnlineGame() {
       <div className="game-topbar retro-panel border-t-0 border-x-0 z-10">
         <div className="game-topbar-left">
           <button className="retro-btn retro-btn-small" onClick={handleBack}>
-            <ArrowLeft size={14}/> MENU
-          </button>
+            <ArrowLeft size={14}/>{translateText(" MENU")}</button>
         </div>
         <div className="game-title-block">
-          <p className="stone-label text-[8px] font-retro">CHESSBLOX</p>
+          <p className="stone-label text-[8px] font-retro">{translateText("CHESSBLOX")}</p>
           <p className="text-[6px] font-retro text-muted-foreground mt-0.5">
-            {playerName} • {myColorLabel}
+            {playerName} • {localize(myColorLabel)}
           </p>
         </div>
         <div className="game-topbar-actions">
           <button className="retro-btn retro-btn-small" onClick={() => { setPauseOpen(true); playMenuClick(); }}>
-            <Pause size={14}/> PAUSE
-          </button>
+            <Pause size={14}/>{translateText(" PAUSE")}</button>
 
           <GameActionMenu musicOn={musicOn} sfxOn={sfxOn} onMusic={toggleMusic} onSfx={toggleSfx}
             onSurrender={() => { setSurrenderConfirmOpen(true); playMenuClick(); }}
@@ -410,29 +410,29 @@ export default function OnlineGame() {
           key={capturePulseKey ?? 'captured-idle'}
           className={`captured-pieces-stack ${capturePulseKey ? 'is-pulsing' : ''}`}
         >
-          {capturedPieces.w.length > 0 && (
+          {localize(capturedPieces.w.length > 0 && (
             <div className="retro-panel px-2 py-1 mb-1">
-              <p className="text-[6px] font-retro text-muted-foreground mb-0.5">WHITE CAPTURED</p>
+              <p className="text-[6px] font-retro text-muted-foreground mb-0.5">{translateText("WHITE CAPTURED")}</p>
               <p className="text-sm">
-                {capturedPieces.w.map((p, i) => (
-                  <span key={i} className="text-foreground opacity-70">{PIECE_SYMBOLS[p]}</span>
-                ))}
+                {localize(capturedPieces.w.map((p, i) => (
+                  <span key={i} className="text-foreground opacity-70">{localize(PIECE_SYMBOLS[p])}</span>
+                )))}
               </p>
             </div>
-          )}
-          {capturedPieces.b.length > 0 && (
+          ))}
+          {localize(capturedPieces.b.length > 0 && (
             <div className="retro-panel px-2 py-1">
-              <p className="text-[6px] font-retro text-muted-foreground mb-0.5">BLACK CAPTURED</p>
+              <p className="text-[6px] font-retro text-muted-foreground mb-0.5">{translateText("BLACK CAPTURED")}</p>
               <p className="text-sm">
-                {capturedPieces.b.map((p, i) => (
-                  <span key={i} className="text-foreground opacity-70">{PIECE_SYMBOLS[p]}</span>
-                ))}
+                {localize(capturedPieces.b.map((p, i) => (
+                  <span key={i} className="text-foreground opacity-70">{localize(PIECE_SYMBOLS[p])}</span>
+                )))}
               </p>
             </div>
-          )}
+          ))}
         </div>
 
-        <MoveHistoryPanel history={history} moves={moveHistory} title="PVP LOG" pulseKey={movePulseKey} />
+        <MoveHistoryPanel history={history} moves={moveHistory} title={translateText("PVP LOG")} pulseKey={movePulseKey} />
 
         <ActionBanner event={actionBannerEvent} />
 
@@ -445,73 +445,68 @@ export default function OnlineGame() {
 
         <MatchIntroOverlay
           show={showMatchIntro && !pauseOpen && !isGameOver}
-          title="CHALLENGE LIVE"
+          title={translateText("CHALLENGE LIVE")}
           matchup="WHITE VS BLACK"
-          subtitle={`${playerName} • ${myColorLabel} SEAT`}
+          subtitle={localize(`${playerName} • ${myColorLabel} SEAT`)}
         />
 
-        {opponentJoined && (
+        {localize(opponentJoined && (
           <QuickChatPanel
             messages={quickChat.messages}
             status={quickChat.status}
             onSend={quickChat.sendQuickChat}
           />
-        )}
+        ))}
 
-        {pendingPromotion && (
+        {localize(pendingPromotion && (
           <PromotionPicker
             color={pendingPromotion.color}
             disabled={movePending}
             onSelect={choosePromotion}
             onCancel={cancelPromotion}
           />
-        )}
+        ))}
 
-        {wagerClock.canClaimTimeout && <div className="sky-timeout-claim"><button className="retro-btn retro-btn-small retro-btn-gold" onClick={() => { playMenuClick(); claimTimeout(wallet); }} disabled={timeoutPending}>{timeoutPending ? 'CLAIMING...' : 'CLAIM TIMEOUT'}</button></div>}
+        {localize(wagerClock.canClaimTimeout && <div className="sky-timeout-claim"><button className="retro-btn retro-btn-small retro-btn-gold" onClick={() => { playMenuClick(); claimTimeout(wallet); }} disabled={timeoutPending}>{localize(timeoutPending ? 'CLAIMING...' : 'CLAIM TIMEOUT')}</button></div>)}
 
-        {!opponentJoined && (
+        {localize(!opponentJoined && (
           <div className="absolute inset-0 flex items-center justify-center z-20 bg-background/80">
             <div className="retro-panel p-8 text-center retro-slide-up max-w-sm">
               <p className="text-sm font-retro text-primary retro-glow mb-4">
-                {waitingTitle}
+                {localize(waitingTitle)}
               </p>
               <p className="text-[8px] font-retro text-muted-foreground mb-4">
-                {waitingSubtitle}
+                {localize(waitingSubtitle)}
               </p>
               <div className="retro-panel px-3 py-2 mb-4">
                 <p className="text-[7px] font-retro text-foreground break-all">
-                  {playerName} IS QUEUED
-                </p>
+                  {playerName}{translateText(" IS QUEUED")}</p>
               </div>
               <div className="flex flex-wrap justify-center gap-3">
                 <button className="retro-btn retro-btn-gold" onClick={copyLink} disabled={copyState === 'copying'}>
-                  {copyButtonText}
+                  {localize(copyButtonText)}
                 </button>
-                <button className="retro-btn" onClick={handleBack}>
-                  CANCEL SEARCH
-                </button>
+                <button className="retro-btn" onClick={handleBack}>{translateText("CANCEL SEARCH")}</button>
               </div>
-              {copyNote && (
+              {localize(copyNote && (
                 <p className="copy-link-note" aria-live="polite">
-                  {copyNote}
+                  {localize(copyNote)}
                 </p>
-              )}
-              <p className="text-[7px] font-retro text-muted-foreground mt-4 retro-blink">
-                SCANNING FOR CHALLENGERS...
-              </p>
+              ))}
+              <p className="text-[7px] font-retro text-muted-foreground mt-4 retro-blink">{translateText("SCANNING FOR CHALLENGERS...")}</p>
             </div>
           </div>
-        )}
+        ))}
 
-        {isGameOver && (
+        {localize(isGameOver && (
           <div className="game-over-overlay">
             <div className="game-over-panel retro-panel p-8 text-center retro-slide-up max-w-md">
               <div className="endgame-burst" aria-hidden="true" />
               <p className="text-lg font-retro text-retro-gold retro-glow-gold mb-4">
-                {resultHeadline}
+                {localize(resultHeadline)}
               </p>
               <p className="text-[8px] font-retro text-foreground mb-6">
-                {resultDetail}
+                {localize(resultDetail)}
               </p>
               <WagerSettlementPanel
                 summary={wagerSettlement}
@@ -523,36 +518,32 @@ export default function OnlineGame() {
               />
               <div className="game-over-actions">
                 <button className="retro-btn retro-btn-gold" onClick={copyLink} disabled={copyState === 'copying'}>
-                  {copyButtonText}
+                  {localize(copyButtonText)}
                 </button>
-                <button className="retro-btn" onClick={handleBack}>
-                  MENU
-                </button>
+                <button className="retro-btn" onClick={handleBack}>{translateText("MENU")}</button>
               </div>
-              {copyNote && (
+              {localize(copyNote && (
                 <p className="copy-link-note" aria-live="polite">
-                  {copyNote}
+                  {localize(copyNote)}
                 </p>
-              )}
+              ))}
             </div>
           </div>
-        )}
+        ))}
 
-        {opponentJoined && !isMyTurn && !isGameOver && (
+        {localize(opponentJoined && !isMyTurn && !isGameOver && (
           <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10">
             <div className="retro-panel px-4 py-2">
-              <p className="text-[9px] font-retro text-muted-foreground retro-blink">
-                OPPONENT'S TURN...
-              </p>
+              <p className="text-[9px] font-retro text-muted-foreground retro-blink">{translateText("OPPONENT'S TURN...")}</p>
             </div>
           </div>
-        )}
+        ))}
       </div>
 
       <GamePausePanel
         open={pauseOpen}
-        title="ONLINE PVP"
-        subtitle={`${playerName} • ${myColorLabel} SEAT`}
+        title={translateText("ONLINE PVP")}
+        subtitle={localize(`${playerName} • ${myColorLabel} SEAT`)}
         status={statusText.toUpperCase()}
         moves={history.length}
         musicOn={musicOn}
@@ -565,9 +556,9 @@ export default function OnlineGame() {
 
       <ConfirmActionDialog
         open={surrenderConfirmOpen}
-        title="SURRENDER MATCH?"
+        title={translateText("SURRENDER MATCH?")}
         message="This submits a resignation to the referee and ends the online game."
-        confirmLabel="SURRENDER"
+        confirmLabel={translateText("SURRENDER")}
         pending={surrenderPending}
         onCancel={() => { setSurrenderConfirmOpen(false); playMenuClick(); }}
         onConfirm={confirmSurrender}
@@ -584,16 +575,15 @@ export default function OnlineGame() {
           />
           <div>
             <p className={`game-status-title ${statusAlert ? 'text-destructive' : movePending ? 'text-retro-gold' : 'text-primary'}`}>
-              {statusText}
+              {localize(statusText)}
             </p>
           </div>
         </div>
         <div className="game-status-meta">
           <p className="game-status-flavor">
-            {statusFlavor}
+            {localize(statusFlavor)}
           </p>
-          <p className="game-status-count">
-            MOVES: {history.length}
+          <p className="game-status-count">{translateText("MOVES: ")}{localize(history.length)}
           </p>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 import { useState, useEffect } from 'react';
 
 interface TypewriterTextProps {
@@ -13,6 +14,8 @@ export default function TypewriterText({
   className = '',
   style
 }: TypewriterTextProps) {
+  useLanguage();
+  text = translateText(text);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
 
@@ -39,8 +42,8 @@ export default function TypewriterText({
   return (
     <span className={className} style={style}>
       "{displayedText}
-      {isTyping && <span className="retro-blink">▌</span>}
-      {!isTyping && '"'}
+      {localize(isTyping && <span className="retro-blink">▌</span>)}
+      {localize(!isTyping && '"')}
     </span>
   );
 }

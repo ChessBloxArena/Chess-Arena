@@ -1,3 +1,4 @@
+import { translateText, localize, useLanguage } from '@/lib/i18n';
 interface ConfirmActionDialogProps {
   open: boolean;
   title: string;
@@ -19,20 +20,21 @@ export default function ConfirmActionDialog({
   onCancel,
   onConfirm,
 }: ConfirmActionDialogProps) {
+  useLanguage();
   if (!open) return null;
 
   return (
-    <div className="confirm-overlay" role="dialog" aria-modal="true" aria-label={title}>
+    <div className="confirm-overlay" role="dialog" aria-modal="true" aria-label={localize(title)}>
       <div className="confirm-panel retro-panel">
-        <p className="confirm-eyebrow">CONFIRM</p>
-        <h2 className="confirm-title">{title}</h2>
-        <p className="confirm-message">{message}</p>
+        <p className="confirm-eyebrow">{translateText("CONFIRM")}</p>
+        <h2 className="confirm-title">{localize(title)}</h2>
+        <p className="confirm-message">{localize(message)}</p>
         <div className="confirm-actions">
           <button type="button" className="retro-btn retro-btn-gold" onClick={onConfirm} disabled={pending}>
-            {pending ? 'WORKING...' : confirmLabel}
+            {localize(pending ? 'WORKING...' : confirmLabel)}
           </button>
           <button type="button" className="retro-btn" onClick={onCancel} disabled={pending}>
-            {cancelLabel}
+            {localize(cancelLabel)}
           </button>
         </div>
       </div>
