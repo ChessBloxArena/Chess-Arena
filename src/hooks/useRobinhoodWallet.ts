@@ -1,3 +1,4 @@
+import { robinhoodReadTransport } from '../../supabase/functions/_shared/robinhoodReadTransport.mjs';
 import { walletErrorMessage } from "@/lib/walletError";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -9,7 +10,6 @@ import {
   formatEther,
   getAddress,
   hexToBytes,
-  http,
   type Address,
   type EIP1193Provider,
   type Hash,
@@ -51,7 +51,8 @@ export interface RobinhoodWallet {
   }) => Promise<Hash>;
 }
 
-const publicClient = createPublicClient({ chain: robinhoodChain, transport: http() });
+const browserRpc = import.meta.env.PROD && typeof window !== 'undefined' ? `${window.location.origin}/api/robinhood-rpc` : undefined;
+const publicClient = createPublicClient({ chain: robinhoodChain, transport: robinhoodReadTransport(browserRpc) });
 
 
 export function useRobinhoodWallet(): RobinhoodWallet {
